@@ -74,15 +74,68 @@ const Cart = () => {
               >
                 <img
                   src={item.image}
-                  alt={item.name
+                  alt={item.name}
+                  className="w-20 h-20 object-cover rounded"
+                />
+                <div className="flex-grow">
+                  <h3 className="text-lg font-semibold text-forest-900">
+                    {item.name}
+                  </h3>
+                  <p className="text-terra-600">
+                    R$ {item.price.toFixed(2)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    className="text-forest-600 hover:text-forest-800 transition-colors"
+                    aria-label="Diminuir quantidade"
+                  >
+                    <MinusCircle className="w-5 h-5" />
+                  </button>
+                  <span className="text-forest-900 font-medium w-8 text-center">
+                    {item.quantity}
+                  </span>
+                  <button
+                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    className="text-forest-600 hover:text-forest-800 transition-colors"
+                    aria-label="Aumentar quantidade"
+                  >
+                    <PlusCircle className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="text-red-500 hover:text-red-600 transition-colors ml-4"
+                    aria-label="Remover item"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
 
-Se há conhecimento, contexto ou instruções personalizadas que você deseja incluir em cada edição deste projeto, configure-o abaixo.
+          <div className="bg-white p-6 rounded-lg shadow-sm h-fit">
+            <h2 className="text-xl font-semibold text-forest-900 mb-4">
+              Resumo do Pedido
+            </h2>
+            <div className="border-t border-sand-200 pt-4">
+              <div className="flex justify-between text-lg font-semibold text-forest-900">
+                <span>Total</span>
+                <span>R$ {total.toFixed(2)}</span>
+              </div>
+              <button
+                onClick={handleCheckout}
+                className="btn btn-primary w-full mt-6"
+              >
+                Finalizar Compra
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-<lov-actions>
-<lov-knowledge>
-</lov-actions>
-
-Se seu projeto requer funcionalidade de backend para gerenciar produtos e carrinho de compras, você pode usar o menu do Supabase na parte superior direita para conectar seu projeto ao Supabase.
-<lov-actions>
-<lov-message-prompt message="Conte-me mais sobre o Supabase">Saiba mais sobre o Supabase</lov-message-prompt>
-</lov-actions>
+export default Cart;
