@@ -1,33 +1,102 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MinusCircle, PlusCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-const products = [
-  {
-    id: 1,
-    name: "Colar Guarani",
-    price: 89.90,
-    image: "/placeholder.svg",
-    description: "Colar artesanal feito com sementes naturais da floresta amazônica.",
-    longDescription: "Este colar Guarani é uma peça única, confeccionada manualmente por artesãos da tribo Guarani. Cada semente utilizada foi cuidadosamente selecionada e tratada, mantendo sua beleza natural. O colar representa a conexão do povo Guarani com a natureza e sua rica tradição cultural."
-  },
-  // ... outros produtos
-];
+import { useProducts } from "@/hooks/use-products";
+import { useCart } from "@/hooks/use-cart";
+import type { Product } from "@/lib/products";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { addItem } = useCart();
+  const { getProduct, products, isLoading: productsLoading } = useProducts();
+
   const [quantity, setQuantity] = useState(1);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const product = products.find(p => p.id === Number(id));
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) {
+        setError("ID do produto não fornecido");
+        setLoading(false);
+        return;
+      }
 
-  if (!product) {
+      try {
+        setLoading(true);
+        const productId = parseInt(id, 10);
+
+        // First check if the product is already in the products list
+        const foundProduct = products.find(p => p.id === productId);
+        if (foundProduct) {
+          setProduct(foundProduct);
+          setLoading(false);
+          return;
+        }
+
+        // If not in the list or if products are still loading, fetch individually
+        if (products.length === 0 || !foundProduct) {
+          const productData = await getProduct(productId);
+
+          if (productData) {
+            setProduct(productData);
+          } else {
+            setError("Produto não encontrado");
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao carregar detalhes do produto:", err);
+        setError("Erro ao carregar detalhes do produto");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Wait for products to load if they're loading
+    if (!productsLoading || products.length > 0) {
+      fetchProduct();
+    }
+  }, [id, getProduct, products, productsLoading]);
+
+  const handleAddToCart = () => {
+    if (product) {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity
+      });
+
+      toast({
+        title: "Produto adicionado ao carrinho!",
+        description: `${quantity}x ${product.name}`,
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white py-16 animate-fadeIn">
+        <div className="container mx-auto">
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forest-700"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
     return (
       <div className="container mx-auto py-16 text-center">
-        <h1 className="text-2xl text-forest-900 mb-4">Produto não encontrado</h1>
+        <h1 className="text-2xl text-forest-900 mb-4">
+          {error || "Produto não encontrado"}
+        </h1>
         <button
           onClick={() => navigate("/produtos")}
           className="btn btn-secondary"
@@ -37,14 +106,6 @@ const ProductDetails = () => {
       </div>
     );
   }
-
-  const handleAddToCart = () => {
-    toast({
-      title: "Produto adicionado ao carrinho!",
-      description: `${quantity}x ${product.name}`,
-    });
-    // Aqui você implementaria a lógica real do carrinho
-  };
 
   return (
     <div className="bg-white py-16 animate-fadeIn">
@@ -66,7 +127,7 @@ const ProductDetails = () => {
               R$ {product.price.toFixed(2)}
             </p>
             <p className="text-forest-700">
-              {product.longDescription}
+              {product.longDescription || product.description}
             </p>
 
             <div className="flex items-center space-x-4">

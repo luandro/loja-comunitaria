@@ -71,10 +71,34 @@ cp .env.example .env
 | `VITE_PIX_RECIPIENT_KEY` | PIX key for payments | "example@email.com" |
 | `VITE_PIX_API_URL` | URL for the PIX API | "https://gerarqrcodepix.com.br/api/v1" |
 | `VITE_WHATSAPP_NUMBER` | WhatsApp number for order confirmation (format: country code + number) | "5511999999999" |
+| `VITE_GOOGLE_SPREADSHEET_ID` | ID of Google Spreadsheet for product data (optional) | "" |
+| `VITE_GOOGLE_SPREADSHEET_TAB` | Tab name in Google Spreadsheet for product data | "produtos" |
 
 If these variables are not set, the application will use default values and log warnings to the console.
 
 > **Note about PIX Integration**: Due to CORS limitations with third-party PIX API services, this application attempts to use the API directly but falls back to local generation if needed. For production use, we've included an example backend proxy implementation in `src/server/api/proxy-pix.ts` that would need to be deployed as a serverless function or Express endpoint to fully utilize the PIX API without CORS issues.
+
+## Product Data Source
+
+The product catalog can be managed through two different approaches:
+
+1. **Local CSV File**: By default, the application loads products from `public/data/products.csv` if no Google Spreadsheet ID is provided. Edit this file to update your products.
+
+2. **Google Spreadsheet Integration**: For easier management, you can connect the shop to a Google Spreadsheet by setting the environment variables:
+   - `VITE_GOOGLE_SPREADSHEET_ID`: Your spreadsheet ID from the URL
+   - `VITE_GOOGLE_SPREADSHEET_TAB`: The name of the tab/sheet containing product data (default: "produtos")
+
+### Google Spreadsheet Format
+
+If using Google Spreadsheet, ensure your sheet has the following columns (in any order):
+- `id`: Unique number identifier for each product
+- `name`: Product name
+- `price`: Price in BRL (use decimal point, not comma)
+- `image`: URL to product image (can be absolute or relative to public folder)
+- `description`: Short product description
+- `longDescription`: Longer description shown on product details page (optional)
+
+The sheet must be published to the web and accessible without authentication.
 
 ## What technologies are used for this project?
 

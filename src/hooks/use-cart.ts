@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { generateOrderId } from '@/lib/whatsapp';
 
@@ -10,21 +10,32 @@ export interface CartItem {
   quantity: number;
 }
 
-// Mock data - in a real app, this would come from context or API
-const initialCartItems: CartItem[] = [
-  {
-    id: 1,
-    name: "Colar Guarani",
-    price: 89.90,
-    image: "/placeholder.svg",
-    quantity: 1
+// Get cart from localStorage if available
+const getInitialCartItems = (): CartItem[] => {
+  try {
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      return JSON.parse(savedCart);
+    }
+  } catch (err) {
+    console.error('Error reading cart from localStorage:', err);
   }
-];
+  return [];
+};
 
 export const useCart = () => {
-  const [cart, setCart] = useState<CartItem[]>(initialCartItems);
+  const [cart, setCart] = useState<CartItem[]>(getInitialCartItems());
   const [orderId, setOrderId] = useState<string>('');
   const { toast } = useToast();
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    } catch (err) {
+      console.error('Error saving cart to localStorage:', err);
+    }
+  }, [cart]);
 
   const updateQuantity = (id: number, newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -42,6 +53,8 @@ export const useCart = () => {
 
   const clearCart = () => {
     setCart([]);
+    // Clear localStorage cart
+    localStorage.removeItem('cart');
     // Generate a new order ID when the cart is cleared
     setOrderId('');
   };
@@ -49,7 +62,7 @@ export const useCart = () => {
   const addItem = (item: CartItem) => {
     const existingItem = cart.find(i => i.id === item.id);
     if (existingItem) {
-      updateQuantity(item.id, existingItem.quantity + 1);
+      updateQuantity(item.id, existingItem.quantity + item.quantity);
     } else {
       setCart([...cart, item]);
     }
