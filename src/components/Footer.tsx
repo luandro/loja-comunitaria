@@ -53,7 +53,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 pt-8 border-t border-forest-700 text-center text-sand-400">
-          <p>© 2024 Tribal Artesanatos. Todos os direitos reservados.</p>
+          <p>© 2025 Artesanatos. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>

@@ -10,7 +10,7 @@ const About = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
           <div className="space-y-6">
             <p className="text-forest-700">
-              A Tribal Artesanatos nasceu do profundo respeito e admiração pela rica
+              A l Artesanatos nasceu do profundo respeito e admiração pela rica
               cultura dos povos indígenas brasileiros. Nossa missão é criar uma
               ponte entre os artesãos indígenas e pessoas que valorizam a arte
               autêntica e sustentável.

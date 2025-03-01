@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { generateOrderId } from '@/lib/whatsapp';
 
 export interface CartItem {
   id: number;
@@ -22,6 +23,7 @@ const initialCartItems: CartItem[] = [
 
 export const useCart = () => {
   const [cart, setCart] = useState<CartItem[]>(initialCartItems);
+  const [orderId, setOrderId] = useState<string>('');
   const { toast } = useToast();
 
   const updateQuantity = (id: number, newQuantity: number) => {
@@ -40,6 +42,8 @@ export const useCart = () => {
 
   const clearCart = () => {
     setCart([]);
+    // Generate a new order ID when the cart is cleared
+    setOrderId('');
   };
 
   const addItem = (item: CartItem) => {
@@ -54,15 +58,28 @@ export const useCart = () => {
     });
   };
 
+  const createOrder = () => {
+    // Generate a new order ID if one doesn't exist
+    if (!orderId) {
+      const newOrderId = generateOrderId();
+      setOrderId(newOrderId);
+      console.log("[Cart] Created new order with ID:", newOrderId);
+      return newOrderId;
+    }
+    return orderId;
+  };
+
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return {
     cart,
     total,
+    orderId,
     updateQuantity,
     removeItem,
     clearCart,
     addItem,
+    createOrder,
     isEmpty: cart.length === 0
   };
 };

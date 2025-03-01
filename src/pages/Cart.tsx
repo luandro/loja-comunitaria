@@ -1,27 +1,54 @@
 
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/hooks/use-cart";
 import { usePixPayment } from "@/hooks/use-pix-payment";
 import { CartItem, EmptyCart, OrderSummary, PixPayment } from "@/components/cart";
+import { generateWhatsAppLink } from "@/lib/whatsapp";
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { cart, total, updateQuantity, removeItem, clearCart, isEmpty } = useCart();
+  const {
+    cart,
+    total,
+    orderId,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    isEmpty,
+    createOrder
+  } = useCart();
+
   const {
     isLoading,
     pixQrCode,
     pixCopyCode,
     checkoutComplete,
     isCopied,
+    isLocallyGenerated,
     generatePixPaymentInfo,
     copyToClipboard,
     resetPayment
   } = usePixPayment({ amount: total });
 
+  const [whatsappLink, setWhatsappLink] = useState("");
+
   console.log("[Cart] Rendering cart component, isEmpty:", isEmpty, "checkoutComplete:", checkoutComplete);
+
+  // Generate WhatsApp link when checkout is complete
+  useEffect(() => {
+    if (checkoutComplete) {
+      const currentOrderId = orderId || createOrder();
+      const link = generateWhatsAppLink(cart, total, currentOrderId);
+      console.log("[Cart] Generated WhatsApp link for order:", currentOrderId);
+      setWhatsappLink(link);
+    }
+  }, [checkoutComplete, cart, total, orderId, createOrder]);
 
   const handleCheckout = () => {
     console.log("[Cart] Initiating checkout process");
+    // Create order ID when starting checkout
+    createOrder();
     generatePixPaymentInfo();
   };
 
@@ -40,13 +67,17 @@ const Cart = () => {
 
   // Display payment screen if checkout is complete
   if (checkoutComplete) {
-    console.log("[Cart] Showing payment screen");
+    console.log("[Cart] Showing payment screen, locally generated:", isLocallyGenerated);
     return (
       <PixPayment
         pixQrCode={pixQrCode}
         pixCopyCode={pixCopyCode}
         isCopied={isCopied}
+        isLocallyGenerated={isLocallyGenerated}
         total={total}
+        cart={cart}
+        orderId={orderId}
+        whatsappLink={whatsappLink}
         onCopyToClipboard={copyToClipboard}
         onNewPurchase={handleNewPurchase}
       />
