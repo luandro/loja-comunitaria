@@ -1,22 +1,38 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MinusCircle, PlusCircle } from "lucide-react";
+import { MinusCircle, PlusCircle, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useProducts } from "@/hooks/use-products";
 import { useCart } from "@/hooks/use-cart";
 import type { Product } from "@/lib/products";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { addItem } = useCart();
+  const { addItem, cart } = useCart();
   const { getProduct, products, isLoading: productsLoading } = useProducts();
 
   const [quantity, setQuantity] = useState(1);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Check if product is in cart
+  const existingCartItem = cart.find(item => item.id === Number(id));
+
+  // Calculate available quantity
+  const availableQuantity = product?.quantity !== undefined
+    ? product.quantity - (existingCartItem?.quantity || 0)
+    : product?.isUnique && existingCartItem ? 0 : 1;
+
+  // Check if product is unique
+  const isUnique = product?.isUnique || false;
+
+  // Check if product is out of stock
+  const isOutOfStock = availableQuantity <= 0;
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -62,20 +78,44 @@ const ProductDetails = () => {
     }
   }, [id, getProduct, products, productsLoading]);
 
-  const handleAddToCart = () => {
-    if (product) {
-      addItem({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        quantity
-      });
+  // Reset quantity when product changes
+  useEffect(() => {
+    setQuantity(1);
+  }, [id]);
 
+  const handleAddToCart = () => {
+    if (!product || isOutOfStock) return;
+
+    // For unique items, only allow one
+    const quantityToAdd = isUnique ? 1 : quantity;
+
+    // Check if adding this quantity exceeds available stock
+    const totalQuantity = (existingCartItem?.quantity || 0) + quantityToAdd;
+    if (product.quantity !== undefined && totalQuantity > product.quantity) {
       toast({
-        title: "Produto adicionado ao carrinho!",
-        description: `${quantity}x ${product.name}`,
+        title: "Quantidade indisponível",
+        description: `Apenas ${product.quantity - (existingCartItem?.quantity || 0)} unidades disponíveis.`,
+        variant: "destructive"
       });
+      return;
+    }
+
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: quantityToAdd
+    });
+
+    toast({
+      title: "Produto adicionado ao carrinho!",
+      description: `${quantityToAdd}x ${product.name}`,
+    });
+
+    // Navigate to cart if unique item
+    if (isUnique) {
+      navigate('/carrinho');
     }
   };
 
@@ -111,12 +151,17 @@ const ProductDetails = () => {
     <div className="bg-white py-16 animate-fadeIn">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div className="aspect-square bg-sand-100 rounded-lg overflow-hidden">
+          <div className="aspect-square bg-sand-100 rounded-lg overflow-hidden relative">
             <img
               src={product.image}
               alt={product.name}
               className="w-full h-full object-cover"
             />
+            {isUnique && (
+              <div className="absolute top-4 right-4 bg-amber-400 text-white px-3 py-1 rounded-full text-sm font-bold">
+                PEÇA ÚNICA
+              </div>
+            )}
           </div>
 
           <div className="space-y-6">
@@ -126,36 +171,70 @@ const ProductDetails = () => {
             <p className="text-2xl text-terra-600 font-semibold">
               R$ {product.price.toFixed(2)}
             </p>
+
+            {!isUnique && product.quantity !== undefined && (
+              <p className={`text-sm ${availableQuantity <= 3 && availableQuantity > 0 ? 'text-amber-600 font-medium' : 'text-forest-600'}`}>
+                {availableQuantity > 0
+                  ? `${availableQuantity} unidades disponíveis`
+                  : 'Produto esgotado'}
+              </p>
+            )}
+
             <p className="text-forest-700">
               {product.longDescription || product.description}
             </p>
 
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="text-forest-600 hover:text-forest-800 transition-colors"
-                aria-label="Diminuir quantidade"
-              >
-                <MinusCircle className="w-6 h-6" />
-              </button>
-              <span className="text-xl font-semibold text-forest-900">
-                {quantity}
-              </span>
-              <button
-                onClick={() => setQuantity(quantity + 1)}
-                className="text-forest-600 hover:text-forest-800 transition-colors"
-                aria-label="Aumentar quantidade"
-              >
-                <PlusCircle className="w-6 h-6" />
-              </button>
-            </div>
+            {isOutOfStock && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {isUnique && existingCartItem
+                    ? 'Este produto já está no seu carrinho e é uma peça única.'
+                    : 'Este produto está esgotado no momento.'}
+                </AlertDescription>
+              </Alert>
+            )}
 
-            <button
+            {!isUnique && (
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="text-forest-600 hover:text-forest-800 transition-colors disabled:opacity-50"
+                  aria-label="Diminuir quantidade"
+                  disabled={isOutOfStock}
+                >
+                  <MinusCircle className="w-6 h-6" />
+                </button>
+                <span className="text-xl font-semibold text-forest-900">
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => setQuantity(Math.min(availableQuantity, quantity + 1))}
+                  className="text-forest-600 hover:text-forest-800 transition-colors disabled:opacity-50"
+                  aria-label="Aumentar quantidade"
+                  disabled={isOutOfStock || quantity >= availableQuantity}
+                >
+                  <PlusCircle className="w-6 h-6" />
+                </button>
+              </div>
+            )}
+
+            <Button
               onClick={handleAddToCart}
-              className="btn btn-primary w-full"
+              className="w-full"
+              disabled={isOutOfStock}
+              variant={isOutOfStock ? "outline" : "default"}
             >
-              Adicionar ao Carrinho
-            </button>
+              {isOutOfStock
+                ? (isUnique && existingCartItem ? 'Já no carrinho' : 'Produto esgotado')
+                : 'Adicionar ao Carrinho'}
+            </Button>
+
+            {isUnique && !isOutOfStock && (
+              <p className="text-sm text-amber-600 italic">
+                Peça única - Este produto é feito artesanalmente e possui apenas uma unidade disponível.
+              </p>
+            )}
           </div>
         </div>
       </div>

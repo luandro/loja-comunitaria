@@ -88,6 +88,15 @@ The product catalog can be managed through two different approaches:
    - `VITE_GOOGLE_SPREADSHEET_ID`: Your spreadsheet ID from the URL
    - `VITE_GOOGLE_SPREADSHEET_TAB`: The name of the tab/sheet containing product data (default: "produtos")
 
+### Product Inventory Management
+
+The application supports inventory tracking and handling of unique artisanal products:
+
+- **Regular Products**: Products with a specified quantity will display the available inventory and prevent customers from adding more than the available quantity to their cart.
+- **Unique Products**: Products with no quantity or a quantity of 0 are treated as unique artisanal pieces. These products have special styling (gold border and "ÚNICO" badge) and can only be added to the cart once.
+- **Low Stock Warning**: Products with 3 or fewer items remaining show a yellow warning to encourage customers to make a purchase before stock runs out.
+- **Out of Stock**: Products that have run out of stock are marked as "Esgotado" and can't be added to the cart.
+
 ### Google Spreadsheet Format
 
 If using Google Spreadsheet, ensure your sheet has the following columns (in any order):
@@ -97,6 +106,9 @@ If using Google Spreadsheet, ensure your sheet has the following columns (in any
 - `image`: URL to product image (can be absolute or relative to public folder)
 - `description`: Short product description
 - `longDescription`: Longer description shown on product details page (optional)
+- `quantity`: Number of units available (optional)
+  - If provided, the shop will track inventory and prevent ordering more than available
+  - If empty or set to 0, the product will be treated as a unique piece with special styling
 
 The sheet must be published to the web and accessible without authentication.
 

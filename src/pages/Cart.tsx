@@ -55,7 +55,7 @@ const Cart = () => {
   const handleNewPurchase = () => {
     console.log("[Cart] Starting new purchase");
     resetPayment();
-    clearCart();
+    clearCart(); // This already clears localStorage in our updated useCart hook
     navigate("/produtos");
   };
 

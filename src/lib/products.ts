@@ -7,6 +7,8 @@ export interface Product {
   image: string;
   description: string;
   longDescription?: string;
+  quantity?: number; // Optional: If undefined or 0, product is unique
+  isUnique?: boolean; // Derived property: true if quantity is undefined or 0
 }
 
 /**
@@ -53,6 +55,10 @@ export function parseCSV(csv: string): Product[] {
         product[headerTrim] = Number.parseFloat(cleanValues[index]);
       } else if (headerTrim === 'id') {
         product[headerTrim] = Number.parseInt(cleanValues[index], 10);
+      } else if (headerTrim === 'quantity') {
+        // Parse quantity as number if present, undefined if empty
+        const quantityValue = cleanValues[index].trim();
+        product[headerTrim] = quantityValue ? Number.parseInt(quantityValue, 10) : undefined;
       } else {
         product[headerTrim] = cleanValues[index];
       }
@@ -69,7 +75,14 @@ export function parseCSV(csv: string): Product[] {
       throw new Error(`Invalid product data: ${JSON.stringify(product)}`);
     }
 
-    return product as unknown as Product;
+    // Determine if the product is unique (no quantity or quantity is 0)
+    const quantity = product.quantity as number | undefined;
+    const isUnique = quantity === undefined || quantity === 0;
+
+    return {
+      ...product as unknown as Product,
+      isUnique
+    };
   });
 }
 
@@ -121,13 +134,24 @@ export async function loadProductsFromSpreadsheet(): Promise<Product[]> {
 
     // Transform the data to ensure types are correct
     const transformedData = data.map((item: Record<string, unknown>) => {
+      // Parse quantity, if present
+      let quantity: number | undefined = undefined;
+      if (item.quantity && String(item.quantity).trim() !== '') {
+        quantity = Number.parseInt(String(item.quantity), 10);
+      }
+
+      // Determine if the product is unique (no quantity or quantity is 0)
+      const isUnique = quantity === undefined || quantity === 0;
+
       return {
         id: Number.parseInt(String(item.id), 10),
         name: String(item.name),
         price: Number.parseFloat(String(item.price)),
         image: String(item.image),
         description: String(item.description),
-        longDescription: item.longDescription ? String(item.longDescription) : undefined
+        longDescription: item.longDescription ? String(item.longDescription) : undefined,
+        quantity,
+        isUnique
       };
     });
 

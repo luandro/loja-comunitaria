@@ -38,7 +38,10 @@ export const useCart = () => {
   }, [cart]);
 
   const updateQuantity = (id: number, newQuantity: number) => {
+    // Don't allow quantities less than 1
     if (newQuantity < 1) return;
+
+    // Apply the update
     setCart(cart.map(item =>
       item.id === id ? { ...item, quantity: newQuantity } : item
     ));
@@ -61,11 +64,15 @@ export const useCart = () => {
 
   const addItem = (item: CartItem) => {
     const existingItem = cart.find(i => i.id === item.id);
+
     if (existingItem) {
+      // Add to existing quantity
       updateQuantity(item.id, existingItem.quantity + item.quantity);
     } else {
+      // Add new item
       setCart([...cart, item]);
     }
+
     toast({
       description: "Item adicionado ao carrinho",
     });
