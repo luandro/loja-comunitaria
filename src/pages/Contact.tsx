@@ -13,13 +13,13 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Here you would typically send the form data to your backend
     toast({
       title: "Mensagem enviada!",
       description: "Entraremos em contato em breve.",
     });
-    
+
     setFormData({
       name: "",
       email: "",
