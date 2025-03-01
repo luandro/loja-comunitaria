@@ -17,6 +17,9 @@ const initialCart = [
 
 const Cart = () => {
   const [cart, setCart] = useState(initialCart);
+  const [isLoading, setIsLoading] = useState(false);
+  const [pixQrCode, setPixQrCode] = useState<string | null>(null);
+  const [checkoutComplete, setCheckoutComplete] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -36,15 +39,60 @@ const Cart = () => {
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const handleCheckout = () => {
-    toast({
-      title: "Pedido realizado com sucesso!",
-      description: "Você receberá um e-mail com os detalhes do pedido.",
-    });
-    setCart([]);
+  const generatePixQrCode = async () => {
+    setIsLoading(true);
+    try {
+      // Build API URL with parameters
+      const params = new URLSearchParams({
+        nome: "Artes Indígenas",
+        cidade: "São Paulo",
+        chave: "example@email.com", // Replace with actual Pix key
+        valor: total.toFixed(2),
+        saida: "qr"
+      });
+
+      const response = await fetch(`https://gerarqrcodepix.com.br/api/v1?${params.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error("Falha ao gerar o QR Code Pix");
+      }
+
+      const data = await response.json();
+      
+      if (data && data.qr_code) {
+        setPixQrCode(data.qr_code);
+        setCheckoutComplete(true);
+        toast({
+          title: "Pedido realizado com sucesso!",
+          description: "Escaneie o QR Code para finalizar o pagamento.",
+        });
+      } else {
+        throw new Error("QR Code não encontrado na resposta");
+      }
+    } catch (error) {
+      console.error("Erro ao gerar QR Code Pix:", error);
+      toast({
+        title: "Erro ao gerar QR Code",
+        description: "Não foi possível gerar o QR Code para pagamento. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  if (cart.length === 0) {
+  const handleCheckout = () => {
+    generatePixQrCode();
+  };
+
+  const handleNewPurchase = () => {
+    setPixQrCode(null);
+    setCheckoutComplete(false);
+    setCart([]);
+    navigate("/produtos");
+  };
+
+  if (cart.length === 0 && !checkoutComplete) {
     return (
       <div className="container mx-auto py-16 text-center animate-fadeIn">
         <h1 className="text-2xl text-forest-900 mb-4">Seu carrinho está vazio</h1>
@@ -54,6 +102,46 @@ const Cart = () => {
         >
           Continuar Comprando
         </button>
+      </div>
+    );
+  }
+
+  if (checkoutComplete) {
+    return (
+      <div className="bg-sand-50 py-16 animate-fadeIn">
+        <div className="container mx-auto max-w-md">
+          <div className="bg-white p-8 rounded-lg shadow-sm text-center">
+            <h1 className="text-2xl font-marcellus text-forest-900 mb-4">
+              Pagamento via Pix
+            </h1>
+            <p className="text-forest-800 mb-6">
+              Escaneie o QR Code abaixo com o aplicativo do seu banco para finalizar o pagamento.
+            </p>
+            
+            {pixQrCode && (
+              <div className="mb-6 flex justify-center">
+                <img 
+                  id="qrcode-img" 
+                  src={pixQrCode} 
+                  alt="QR Code Pix" 
+                  className="w-64 h-64 border border-sand-200 rounded"
+                />
+              </div>
+            )}
+            
+            <div className="border-t border-sand-200 pt-6 mt-6">
+              <p className="text-lg font-semibold text-forest-900 mb-4">
+                Total: R$ {total.toFixed(2)}
+              </p>
+              <button
+                onClick={handleNewPurchase}
+                className="btn btn-primary w-full"
+              >
+                Fazer Nova Compra
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -127,8 +215,9 @@ const Cart = () => {
               <button
                 onClick={handleCheckout}
                 className="btn btn-primary w-full mt-6"
+                disabled={isLoading}
               >
-                Finalizar Compra
+                {isLoading ? "Gerando QR Code..." : "Finalizar Compra"}
               </button>
             </div>
           </div>
