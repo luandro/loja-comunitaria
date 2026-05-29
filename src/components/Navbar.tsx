@@ -43,13 +43,26 @@ const Navbar = () => {
             <CartLink />
           </div>
 
-          <button
-            className="md:hidden p-2"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Menu"
-          >
-            {isOpen ? <X className="h-6 w-6 text-forest-800" /> : <Menu className="h-6 w-6 text-forest-800" />}
-          </button>
+          <div className="flex items-center space-x-3 md:hidden">
+            <Link to="/carrinho" className="p-2 relative" aria-label="Carrinho">
+              <ShoppingCart className="w-6 h-6 text-forest-800" />
+              {itemCount > 0 && (
+                <span
+                  aria-label={`${itemCount} itens no carrinho`}
+                  className="absolute -top-0.5 -right-0.5 bg-terra-600 text-white text-[10px] leading-none font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center"
+                >
+                  {itemCount > 99 ? "99+" : itemCount}
+                </span>
+              )}
+            </Link>
+            <button
+              className="p-2"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Menu"
+            >
+              {isOpen ? <X className="h-6 w-6 text-forest-800" /> : <Menu className="h-6 w-6 text-forest-800" />}
+            </button>
+          </div>
         </div>
 
         {isOpen && (
