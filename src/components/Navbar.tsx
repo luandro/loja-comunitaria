@@ -26,6 +26,7 @@ const CartLink = ({ onClick, className }: { onClick?: () => void; className?: st
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const close = () => setIsOpen(false);
+  const { itemCount } = useCart();
 
   return (
     <nav className="bg-sand-50 border-b border-sand-200">
