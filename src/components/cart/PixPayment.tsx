@@ -1,40 +1,33 @@
-import { useEffect, useState } from "react";
-import { Copy, Check, AlertTriangle, MessageSquare } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { Copy, Check, MessageSquare } from 'lucide-react';
+import type { CartItem } from '@/context/CartContext';
 
 interface PixPaymentProps {
   pixQrCode: string | null;
   pixCopyCode: string | null;
   isCopied: boolean;
-  isLocallyGenerated?: boolean;
   total: number;
-  cart: any[];
+  cart: CartItem[];
   orderId: string;
+  whatsappLink: string;
   onCopyToClipboard: () => void;
   onNewPurchase: () => void;
-  whatsappLink: string;
 }
 
 export const PixPayment = ({
   pixQrCode,
   pixCopyCode,
   isCopied,
-  isLocallyGenerated = false,
   total,
-  cart,
   orderId,
+  whatsappLink,
   onCopyToClipboard,
   onNewPurchase,
-  whatsappLink
 }: PixPaymentProps) => {
   const [showWhatsApp, setShowWhatsApp] = useState(false);
 
-  // Show WhatsApp button after 5 seconds
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowWhatsApp(true);
-      console.log("[PixPayment] Showing WhatsApp button after 5s");
-    }, 5000);
-
+    const timer = setTimeout(() => setShowWhatsApp(true), 5000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -42,40 +35,17 @@ export const PixPayment = ({
     <div className="bg-sand-50 py-16 animate-fadeIn">
       <div className="container mx-auto max-w-md">
         <div className="bg-white p-8 rounded-lg shadow-sm text-center">
-          <h1 className="text-2xl font-marcellus text-forest-900 mb-4">
-            Pagamento via Pix
-          </h1>
-
-          {isLocallyGenerated ? (
-            <div className="bg-amber-50 border border-amber-200 p-3 rounded-md mb-6 text-left flex items-start">
-              <AlertTriangle className="w-5 h-5 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-amber-800">
-                <p className="mb-1">
-                  Este código Pix foi gerado localmente e é um exemplo para demonstração.
-                </p>
-                <p>
-                  Para confirmar seu pedido, por favor use o botão WhatsApp abaixo após a transferência.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-md mb-6 text-left flex items-start">
-              <Check className="w-5 h-5 text-emerald-500 mr-2 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-emerald-800">
-                <p>
-                  Este código Pix foi gerado pela API oficial e está pronto para uso.
-                </p>
-              </div>
-            </div>
-          )}
+          <h1 className="text-2xl font-marcellus text-forest-900 mb-4">Pagamento via Pix</h1>
 
           <div className="text-forest-800 mb-6">
             <p className="mb-2">
               Escaneie o QR Code abaixo ou copie o código Pix para finalizar o pagamento.
             </p>
-            <p className="text-sm text-forest-600">
-              Número do pedido: <strong>{orderId}</strong>
-            </p>
+            {orderId && (
+              <p className="text-sm text-forest-600">
+                Número do pedido: <strong>{orderId}</strong>
+              </p>
+            )}
           </div>
 
           {pixQrCode && (
@@ -122,8 +92,7 @@ export const PixPayment = ({
               Total: R$ {total.toFixed(2)}
             </p>
 
-            {/* WhatsApp Button - Shows after 15 seconds */}
-            {showWhatsApp && (
+            {showWhatsApp && whatsappLink && (
               <a
                 href={whatsappLink}
                 target="_blank"
@@ -132,14 +101,11 @@ export const PixPayment = ({
                 aria-label="Enviar detalhes para o WhatsApp"
               >
                 <MessageSquare className="w-5 h-5 mr-2" />
-                <span>Enviar detalhes para o WhatsApp</span>
+                <span>Enviar comprovante via WhatsApp</span>
               </a>
             )}
 
-            <button
-              onClick={onNewPurchase}
-              className="btn btn-primary w-full"
-            >
+            <button onClick={onNewPurchase} className="btn btn-primary w-full">
               Fazer Nova Compra
             </button>
           </div>

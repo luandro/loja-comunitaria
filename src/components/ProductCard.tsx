@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   id: number;
@@ -16,7 +15,6 @@ interface ProductCardProps {
 
 const ProductCard = ({ id, name, price, image, description, quantity, isUnique }: ProductCardProps) => {
   const { addItem, cart } = useCart();
-  const { toast } = useToast();
 
   // Check if this product is already in the cart
   const existingItem = cart.find(item => item.id === id);
@@ -42,10 +40,6 @@ const ProductCard = ({ id, name, price, image, description, quantity, isUnique }
       price,
       image,
       quantity: 1
-    });
-
-    toast({
-      description: "Produto adicionado ao carrinho",
     });
   };
 
