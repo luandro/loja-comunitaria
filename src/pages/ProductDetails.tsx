@@ -108,11 +108,6 @@ const ProductDetails = () => {
       quantity: quantityToAdd
     });
 
-    toast({
-      title: "Produto adicionado ao carrinho!",
-      description: `${quantityToAdd}x ${product.name}`,
-    });
-
     // Navigate to cart if unique item
     if (isUnique) {
       navigate('/carrinho');
