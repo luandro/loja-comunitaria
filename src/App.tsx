@@ -8,6 +8,7 @@ import { ProductProvider } from "@/hooks/use-products";
 import { CartProvider } from "@/context/CartContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import { WhatsAppFloat } from "./components/WhatsAppFloat";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
@@ -39,6 +40,7 @@ const App = () => (
               </main>
               <Footer />
             </div>
+            <WhatsAppFloat />
             <Toaster />
             <Sonner />
           </CartProvider>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, Check, MessageSquare } from 'lucide-react';
 import type { CartItem } from '@/context/CartContext';
 
@@ -27,7 +27,7 @@ export const PixPayment = ({
   const [showWhatsApp, setShowWhatsApp] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowWhatsApp(true), 5000);
+    const timer = setTimeout(() => setShowWhatsApp(true), 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -98,7 +98,7 @@ export const PixPayment = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-full mb-4 bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-6 rounded transition"
-                aria-label="Enviar detalhes para o WhatsApp"
+                aria-label="Enviar comprovante via WhatsApp"
               >
                 <MessageSquare className="w-5 h-5 mr-2" />
                 <span>Enviar comprovante via WhatsApp</span>

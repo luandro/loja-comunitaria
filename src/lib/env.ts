@@ -12,6 +12,7 @@ interface EnvVars {
 
   // Contact info
   WHATSAPP_NUMBER: string;
+  WHATSAPP_MESSAGE: string;
 
   // Product data source
   GOOGLE_SPREADSHEET_ID: string;
@@ -24,9 +25,10 @@ const defaults: EnvVars = {
   PIX_RECIPIENT_CITY: "São Paulo",
   PIX_RECIPIENT_KEY: "example@email.com",
   PIX_API_URL: "https://gerarqrcodepix.com.br/api/v1",
-  WHATSAPP_NUMBER: "5511999999999", // Default number, should be replaced in .env
-  GOOGLE_SPREADSHEET_ID: "", // No default, must be set in .env
-  GOOGLE_SPREADSHEET_TAB: "produtos" // Default tab name
+  WHATSAPP_NUMBER: "5511999999999",
+  WHATSAPP_MESSAGE: "Olá! Gostaria de saber mais sobre os produtos da loja Artes Indígenas.",
+  GOOGLE_SPREADSHEET_ID: "",
+  GOOGLE_SPREADSHEET_TAB: "produtos"
 };
 
 /**
