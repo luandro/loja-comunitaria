@@ -1,6 +1,28 @@
 import { getEnv } from './env';
 import { CartItem } from '@/hooks/use-cart';
 
+function buildWhatsAppUrl(phone: string, message: string): string {
+  const encodedMessage = encodeURIComponent(message);
+  return `https://api.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
+}
+
+/**
+ * Generate a general WhatsApp contact link with the default store message
+ */
+export function getWhatsAppContactLink(): string {
+  const whatsappNumber = getEnv('WHATSAPP_NUMBER');
+  const whatsappMessage = getEnv('WHATSAPP_MESSAGE');
+  return buildWhatsAppUrl(whatsappNumber, whatsappMessage);
+}
+
+/**
+ * Generate a WhatsApp message URL with a custom message
+ */
+export function getWhatsAppCustomLink(message: string): string {
+  const whatsappNumber = getEnv('WHATSAPP_NUMBER');
+  return buildWhatsAppUrl(whatsappNumber, message);
+}
+
 /**
  * Generate a WhatsApp message URL with purchase details
  */
@@ -32,11 +54,7 @@ export function generateWhatsAppLink(cart: CartItem[], total: number, orderId: s
   // Add note
   message += `Caso já tenha realizado o pagamento, por favor anexe o comprovante. Obrigado!`;
 
-  // Encode the message for URL
-  const encodedMessage = encodeURIComponent(message);
-
-  // Build the WhatsApp API URL
-  return `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
+  return buildWhatsAppUrl(whatsappNumber, message);
 }
 
 /**
