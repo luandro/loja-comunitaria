@@ -1,8 +1,11 @@
 
-import { Mail, Phone, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
+import { MessageSquare, Mail, MapPin } from "lucide-react";
+import { getWhatsAppContactLink } from "@/lib/whatsapp";
 
 const Footer = () => {
+  const whatsappLink = getWhatsAppContactLink();
+
   return (
     <footer className="bg-forest-800 text-sand-100 py-12">
       <div className="container mx-auto">
@@ -36,16 +39,26 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-lg font-marcellus">Contato</h4>
             <div className="space-y-3">
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center group"
+              >
+                <span className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center mr-3 group-hover:bg-emerald-500 transition-colors">
+                  <MessageSquare className="w-4 h-4 text-white" />
+                </span>
+                <div>
+                  <span className="block text-sm font-semibold text-emerald-400">WhatsApp</span>
+                  <span className="text-sand-300 group-hover:text-sand-100 transition-colors">Fale conosco agora</span>
+                </div>
+              </a>
               <div className="flex items-center">
-                <MapPin className="w-5 h-5 mr-2 text-terra-400" />
+                <MapPin className="w-5 h-5 mr-3 text-terra-400" />
                 <span className="text-sand-300">São Paulo, SP</span>
               </div>
               <div className="flex items-center">
-                <Phone className="w-5 h-5 mr-2 text-terra-400" />
-                <span className="text-sand-300">(11) 9999-9999</span>
-              </div>
-              <div className="flex items-center">
-                <Mail className="w-5 h-5 mr-2 text-terra-400" />
+                <Mail className="w-5 h-5 mr-3 text-terra-400" />
                 <span className="text-sand-300">contato@tribalartesanatos.com</span>
               </div>
             </div>
