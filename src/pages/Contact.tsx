@@ -80,7 +80,7 @@ const Contact = () => {
                   </span>
                   <div>
                     <span className="block text-sm font-semibold text-forest-900">Endereço</span>
-                    <span className="text-forest-700">São Paulo, SP</span>
+                    <span className="text-forest-700">{content.location}</span>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -89,7 +89,7 @@ const Contact = () => {
                   </span>
                   <div>
                     <span className="block text-sm font-semibold text-forest-900">E-mail</span>
-                    <span className="text-forest-700">contato@tribalartesanatos.com</span>
+                    <span className="text-forest-700">{content.email}</span>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -98,7 +98,7 @@ const Contact = () => {
                   </span>
                   <div>
                     <span className="block text-sm font-semibold text-forest-900">Horário de Atendimento</span>
-                    <span className="text-forest-700">Seg-Sex: 9h às 18h · Sáb: 9h às 13h</span>
+                    <span className="text-forest-700">{content.business_hours}</span>
                   </div>
                 </div>
               </div>
