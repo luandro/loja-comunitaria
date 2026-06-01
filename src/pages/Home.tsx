@@ -1,27 +1,32 @@
 import { Link } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { useProducts } from "@/hooks/use-products";
+import { useSiteContent } from "@/context/SiteContentContext";
 
 const Home = () => {
   const { featuredProducts, isLoading, error } = useProducts();
+  const { content } = useSiteContent();
 
   return (
     <div className="animate-fadeIn">
       {/* Hero Section */}
-      <section className="relative bg-forest-900 text-white py-24">
+      <section
+        className="relative bg-forest-900 text-white py-24 bg-cover bg-center"
+        style={
+          content.hero_image_url
+            ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${content.hero_image_url})` }
+            : undefined
+        }
+      >
         <div className="container mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-marcellus mb-6">
-            Arte Indígena Autêntica
+            {content.hero_title}
           </h1>
           <p className="text-lg md:text-xl text-sand-100 mb-8 max-w-2xl mx-auto">
-            Descubra a riqueza do artesanato indígena brasileiro: peças únicas que
-            contam histórias milenares.
+            {content.hero_description}
           </p>
-          <Link
-            to="/produtos"
-            className="btn btn-primary text-lg"
-          >
-            Explorar Produtos
+          <Link to="/produtos" className="btn btn-primary text-lg">
+            {content.hero_button_label}
           </Link>
         </div>
       </section>
@@ -35,7 +40,7 @@ const Home = () => {
 
           {isLoading && (
             <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forest-700"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forest-700" />
             </div>
           )}
 
@@ -62,10 +67,7 @@ const Home = () => {
           )}
 
           <div className="text-center mt-12">
-            <Link
-              to="/produtos"
-              className="btn btn-secondary"
-            >
+            <Link to="/produtos" className="btn btn-secondary">
               Ver Todos os Produtos
             </Link>
           </div>
@@ -78,23 +80,18 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-marcellus text-forest-900 mb-6">
-                Nossa História
+                {content.about_title}
               </h2>
-              <p className="text-forest-700 mb-6">
-                A Tribal Artesanatos nasceu do desejo de valorizar e compartilhar a
-                rica tradição artística dos povos indígenas brasileiros. Cada peça
-                em nossa loja carrega consigo séculos de história e cultura.
+              <p className="text-forest-700 mb-6 whitespace-pre-line">
+                {content.about_text}
               </p>
-              <Link
-                to="/sobre"
-                className="btn btn-secondary"
-              >
-                Conheça Nossa História
+              <Link to="/sobre" className="btn btn-secondary">
+                {content.about_button_label}
               </Link>
             </div>
             <div className="aspect-square bg-sand-200 rounded-lg overflow-hidden">
               <img
-                src="/placeholder.svg"
+                src={content.about_image_url || "/placeholder.svg"}
                 alt="Artesão indígena"
                 className="w-full h-full object-cover"
               />
