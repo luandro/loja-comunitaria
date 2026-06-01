@@ -7,19 +7,24 @@ function buildWhatsAppUrl(phone: string, message: string): string {
 }
 
 /**
- * Generate a general WhatsApp contact link with the default store message
+ * Generate a general WhatsApp contact link.
+ * Pass overrides (e.g. resolved from the Site_Content sheet) to prefer them
+ * over the env-based defaults.
  */
-export function getWhatsAppContactLink(): string {
-  const whatsappNumber = getEnv('WHATSAPP_NUMBER');
-  const whatsappMessage = getEnv('WHATSAPP_MESSAGE');
+export function getWhatsAppContactLink(overrides?: {
+  number?: string;
+  message?: string;
+}): string {
+  const whatsappNumber = overrides?.number?.trim() || getEnv('WHATSAPP_NUMBER');
+  const whatsappMessage = overrides?.message?.trim() || getEnv('WHATSAPP_MESSAGE');
   return buildWhatsAppUrl(whatsappNumber, whatsappMessage);
 }
 
 /**
  * Generate a WhatsApp message URL with a custom message
  */
-export function getWhatsAppCustomLink(message: string): string {
-  const whatsappNumber = getEnv('WHATSAPP_NUMBER');
+export function getWhatsAppCustomLink(message: string, numberOverride?: string): string {
+  const whatsappNumber = numberOverride?.trim() || getEnv('WHATSAPP_NUMBER');
   return buildWhatsAppUrl(whatsappNumber, message);
 }
 

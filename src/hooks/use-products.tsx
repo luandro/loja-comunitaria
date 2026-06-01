@@ -49,8 +49,9 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState(() => getInitialState());
   const { products, isLoading, error } = state;
 
-  // Feature the first 3 products
-  const featuredProducts = products.slice(0, 3);
+  // Featured = products flagged in the sheet; fall back to first 3 if none flagged
+  const flagged = products.filter((p) => p.featured);
+  const featuredProducts = flagged.length > 0 ? flagged : products.slice(0, 3);
 
   // Product lookup cache
   const [productCache, setProductCache] = useState<Record<number, Product>>({});
