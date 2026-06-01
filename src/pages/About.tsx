@@ -1,29 +1,24 @@
+import { useSiteContent } from "@/context/SiteContentContext";
 
 const About = () => {
+  const { content } = useSiteContent();
+
   return (
     <div className="bg-sand-50 py-16 animate-fadeIn">
       <div className="container mx-auto">
         <h1 className="text-4xl font-marcellus text-forest-900 text-center mb-12">
-          Sobre Nós
+          {content.about_title || "Sobre Nós"}
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
           <div className="space-y-6">
-            <p className="text-forest-700">
-              A l Artesanatos nasceu do profundo respeito e admiração pela rica
-              cultura dos povos indígenas brasileiros. Nossa missão é criar uma
-              ponte entre os artesãos indígenas e pessoas que valorizam a arte
-              autêntica e sustentável.
-            </p>
-            <p className="text-forest-700">
-              Trabalhamos diretamente com comunidades indígenas, garantindo que
-              cada peça seja produzida de forma justa e ética, preservando as
-              técnicas tradicionais passadas de geração em geração.
+            <p className="text-forest-700 whitespace-pre-line">
+              {content.about_text}
             </p>
           </div>
           <div className="aspect-square bg-sand-200 rounded-lg overflow-hidden">
             <img
-              src="/placeholder.svg"
+              src={content.about_image_url || "/placeholder.svg"}
               alt="Artesão indígena trabalhando"
               className="w-full h-full object-cover"
             />
@@ -36,8 +31,8 @@ const About = () => {
               Nossa Missão
             </h3>
             <p className="text-forest-700">
-              Promover e preservar a arte indígena brasileira, garantindo que as
-              tradições culturais continuem vivas e valorizadas.
+              {content.mission_text ||
+                "Promover e preservar a arte indígena brasileira, garantindo que as tradições culturais continuem vivas e valorizadas."}
             </p>
           </div>
 
@@ -46,8 +41,8 @@ const About = () => {
               Nossos Valores
             </h3>
             <p className="text-forest-700">
-              Autenticidade, sustentabilidade e respeito às tradições são os
-              pilares que guiam nosso trabalho com as comunidades indígenas.
+              {content.values_text ||
+                "Autenticidade, sustentabilidade e respeito às tradições são os pilares que guiam nosso trabalho com as comunidades indígenas."}
             </p>
           </div>
 
@@ -56,8 +51,8 @@ const About = () => {
               Nosso Compromisso
             </h3>
             <p className="text-forest-700">
-              Garantir que cada peça vendida beneficie diretamente os artesãos e
-              suas comunidades, promovendo o comércio justo.
+              {content.commitment_text ||
+                "Garantir que cada peça vendida beneficie diretamente os artesãos e suas comunidades, promovendo o comércio justo."}
             </p>
           </div>
         </div>

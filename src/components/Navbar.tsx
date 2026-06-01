@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
+import { useSiteContent } from "@/context/SiteContentContext";
 
 const CartLink = ({ onClick, className }: { onClick?: () => void; className?: string }) => {
   const { itemCount } = useCart();
@@ -27,13 +28,17 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const close = () => setIsOpen(false);
   const { itemCount } = useCart();
+  const { content } = useSiteContent();
 
   return (
     <nav className="bg-sand-50 border-b border-sand-200">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="text-2xl font-marcellus text-forest-900">
-            Artesanatos Indígenas
+          <Link to="/" className="flex items-center gap-2 text-2xl font-marcellus text-forest-900">
+            {content.logo_url && (
+              <img src={content.logo_url} alt={content.site_name} className="h-8 w-auto" />
+            )}
+            <span>{content.site_name}</span>
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">

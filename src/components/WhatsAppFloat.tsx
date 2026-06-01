@@ -1,8 +1,11 @@
 import { MessageSquare } from "lucide-react";
 import { getWhatsAppContactLink } from "@/lib/whatsapp";
+import { useSiteContent } from "@/context/SiteContentContext";
+import { resolveWhatsApp } from "@/lib/site-content";
 
 export const WhatsAppFloat = () => {
-  const link = getWhatsAppContactLink();
+  const { content } = useSiteContent();
+  const link = getWhatsAppContactLink(resolveWhatsApp(content));
 
   return (
     <a
