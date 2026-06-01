@@ -3,10 +3,13 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { MessageSquare, Mail, MapPin, Clock, Send } from "lucide-react";
 import { getWhatsAppContactLink } from "@/lib/whatsapp";
+import { useSiteContent } from "@/context/SiteContentContext";
+import { resolveWhatsApp } from "@/lib/site-content";
 
 const Contact = () => {
   const { toast } = useToast();
-  const whatsappLink = getWhatsAppContactLink();
+  const { content } = useSiteContent();
+  const whatsappLink = getWhatsAppContactLink(resolveWhatsApp(content));
   const [formData, setFormData] = useState({
     name: "",
     email: "",
