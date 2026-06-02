@@ -28,7 +28,7 @@ const defaults: EnvVars = {
   WHATSAPP_NUMBER: "5511999999999",
   WHATSAPP_MESSAGE: "Olá! Gostaria de saber mais sobre os produtos da loja Artes Indígenas.",
   GOOGLE_SPREADSHEET_ID: "",
-  GOOGLE_SPREADSHEET_TAB: "produtos"
+  GOOGLE_SPREADSHEET_TAB: "Produtos"
 };
 
 /**
