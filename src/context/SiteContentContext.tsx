@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import {
   DEFAULT_SITE_CONTENT,
+  hexToHslTriplet,
   loadSiteContent,
   type SiteContent,
 } from '@/lib/site-content';
@@ -15,6 +16,8 @@ const SiteContentContext = createContext<SiteContentContextType>({
   isLoading: true,
 });
 
+// Session cache for site content. While editing the spreadsheet, lower
+// CACHE_TTL (e.g. to 0) or clear sessionStorage to force a fresh fetch.
 const CACHE_KEY = 'siteContentCache';
 const CACHE_TTL = 5 * 60 * 1000;
 
@@ -74,7 +77,39 @@ export const SiteContentProvider = ({ children }: { children: ReactNode }) => {
       }
       link.href = content.favicon_url;
     }
-  }, [content.meta_title, content.meta_description, content.favicon_url]);
+    // og:image
+    if (content.og_image_url) {
+      let tag = document.querySelector('meta[property="og:image"]');
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', 'og:image');
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content.og_image_url);
+    }
+    // Theme colors → override CSS variables on :root when hex values are provided
+    const root = document.documentElement;
+    const themeMap: Array<[string, string]> = [
+      [content.primary_color, '--primary'],
+      [content.secondary_color, '--secondary'],
+      [content.accent_color, '--accent'],
+      [content.background_color, '--background'],
+    ];
+    for (const [hex, cssVar] of themeMap) {
+      if (!hex) continue;
+      const hsl = hexToHslTriplet(hex);
+      if (hsl) root.style.setProperty(cssVar, hsl);
+    }
+  }, [
+    content.meta_title,
+    content.meta_description,
+    content.favicon_url,
+    content.og_image_url,
+    content.primary_color,
+    content.secondary_color,
+    content.accent_color,
+    content.background_color,
+  ]);
 
   return (
     <SiteContentContext.Provider value={{ content, isLoading }}>
