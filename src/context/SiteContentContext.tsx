@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import {
   DEFAULT_SITE_CONTENT,
+  hexToHslTriplet,
   loadSiteContent,
   type SiteContent,
 } from '@/lib/site-content';
@@ -15,6 +16,8 @@ const SiteContentContext = createContext<SiteContentContextType>({
   isLoading: true,
 });
 
+// Session cache for site content. While editing the spreadsheet, lower
+// CACHE_TTL (e.g. to 0) or clear sessionStorage to force a fresh fetch.
 const CACHE_KEY = 'siteContentCache';
 const CACHE_TTL = 5 * 60 * 1000;
 
