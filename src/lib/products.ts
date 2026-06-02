@@ -7,18 +7,39 @@ export interface Product {
   image: string;
   description: string;
   longDescription?: string;
-  quantity?: number; // Optional: If undefined or 0, product is unique
-  isUnique?: boolean; // Derived property: true if quantity is undefined or 0
+  quantity?: number; // If undefined or 0, product is treated as unique
+  isUnique?: boolean;
   category?: string;
   featured?: boolean;
+  active?: boolean;
   galleryImages?: string[];
   slug?: string;
+  materials?: string;
+  peopleOrCommunity?: string;
+  originLocation?: string;
+  dimensions?: string;
+  weightGrams?: number;
+  sortOrder?: number;
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
 const truthy = (v: unknown) => {
   if (v === undefined || v === null) return false;
   const s = String(v).trim().toLowerCase();
-  return s === 'true' || s === '1' || s === 'yes' || s === 'sim' || s === 'y';
+  if (!s) return false;
+  return s === 'true' || s === '1' || s === 'yes' || s === 'sim' || s === 'y' || s === 'verdadeiro';
+};
+
+/** Pick the first non-empty value across alias keys. */
+const pick = (row: Record<string, unknown>, ...keys: string[]): string => {
+  for (const k of keys) {
+    const v = row[k];
+    if (v !== undefined && v !== null && String(v).trim() !== '') {
+      return String(v).trim();
+    }
+  }
+  return '';
 };
 
 /**
@@ -68,27 +89,44 @@ export function parseCSV(csv: string): Product[] {
 
 /**
  * Convert a raw sheet/CSV row into a normalized Product, or null if invalid.
+ * Supports both English (name, price, image_url) and pt-BR (nome, preco, url_imagem) headers.
  */
 function rowToProduct(row: Record<string, unknown>): Product | null {
-  const id = Number.parseInt(String(row.id ?? ''), 10);
-  const name = String(row.name ?? '').trim();
-  const price = Number.parseFloat(String(row.price ?? ''));
-  const image = String(row.image ?? row.image_url ?? '').trim() || '/placeholder.svg';
-  const description = String(row.description ?? '').trim();
+  const idStr = pick(row, 'id');
+  const id = Number.parseInt(idStr, 10);
+  const name = pick(row, 'name', 'nome');
+  const priceStr = pick(row, 'price', 'price_brl', 'preco', 'preco_brl').replace(',', '.');
+  const price = Number.parseFloat(priceStr);
+  const image =
+    pick(row, 'image', 'image_url', 'url_imagem') || '/placeholder.svg';
+  const description = pick(row, 'description', 'descricao', 'short_description', 'descricao_curta');
 
   if (!Number.isFinite(id) || !name || !Number.isFinite(price)) {
-    console.warn('[PRODUCTS] Skipping invalid row:', row);
+    console.warn('[PRODUCTS] Skipping invalid row (missing id/name/price):', row);
     return null;
   }
 
-  const qRaw = String(row.quantity ?? row.stock_quantity ?? '').trim();
+  const qRaw = pick(row, 'quantity', 'stock_quantity', 'quantidade_estoque');
   const quantity = qRaw ? Number.parseInt(qRaw, 10) : undefined;
   const isUnique = quantity === undefined || quantity === 0;
 
-  const galleryRaw = String(row.gallery_image_urls ?? '').trim();
+  const galleryRaw = pick(row, 'gallery_image_urls', 'urls_galeria_imagens');
   const galleryImages = galleryRaw
     ? galleryRaw.split(',').map((s) => s.trim()).filter(Boolean)
     : undefined;
+
+  const longDescription =
+    pick(row, 'longDescription', 'details', 'full_description', 'detalhes') || undefined;
+
+  // active defaults to TRUE when the column is absent altogether
+  const activeRaw = pick(row, 'active', 'ativo');
+  const active = activeRaw === '' ? true : truthy(activeRaw);
+
+  const sortRaw = pick(row, 'sort_order', 'ordem');
+  const sortOrder = sortRaw ? Number.parseInt(sortRaw, 10) : undefined;
+
+  const weightRaw = pick(row, 'weight_grams', 'peso_gramas');
+  const weightGrams = weightRaw ? Number.parseFloat(weightRaw) : undefined;
 
   return {
     id,
@@ -96,18 +134,35 @@ function rowToProduct(row: Record<string, unknown>): Product | null {
     price,
     image,
     description,
-    longDescription: row.longDescription
-      ? String(row.longDescription)
-      : row.details
-      ? String(row.details)
-      : undefined,
+    longDescription,
     quantity,
     isUnique,
-    category: row.category ? String(row.category) : undefined,
-    featured: truthy(row.featured),
+    active,
+    category: pick(row, 'category', 'categoria') || undefined,
+    featured: truthy(pick(row, 'featured', 'destaque')),
     galleryImages,
-    slug: row.slug ? String(row.slug) : undefined,
+    slug: pick(row, 'slug') || undefined,
+    materials: pick(row, 'materials', 'materiais') || undefined,
+    peopleOrCommunity: pick(row, 'people_or_community', 'povo_ou_comunidade') || undefined,
+    originLocation: pick(row, 'origin_location', 'local_de_origem') || undefined,
+    dimensions: pick(row, 'dimensions', 'dimensoes') || undefined,
+    weightGrams: Number.isFinite(weightGrams as number) ? weightGrams : undefined,
+    sortOrder: Number.isFinite(sortOrder as number) ? sortOrder : undefined,
+    seoTitle: pick(row, 'seo_title', 'titulo_seo') || undefined,
+    seoDescription: pick(row, 'seo_description', 'descricao_seo') || undefined,
   };
+}
+
+/** Filter inactive products and sort by sort_order/ordem then name. */
+function finalize(products: Product[]): Product[] {
+  return products
+    .filter((p) => p.active !== false)
+    .sort((a, b) => {
+      const aOrder = a.sortOrder ?? Number.POSITIVE_INFINITY;
+      const bOrder = b.sortOrder ?? Number.POSITIVE_INFINITY;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+      return a.name.localeCompare(b.name);
+    });
 }
 
 /**
@@ -118,7 +173,7 @@ export async function loadProductsFromCSV(): Promise<Product[]> {
     const response = await fetch('/data/products.csv');
     if (!response.ok) throw new Error(`Failed to fetch CSV: ${response.status}`);
     const csv = await response.text();
-    return parseCSV(csv);
+    return finalize(parseCSV(csv));
   } catch (error) {
     console.error('Error loading products from CSV:', error);
     return [];
@@ -126,7 +181,7 @@ export async function loadProductsFromCSV(): Promise<Product[]> {
 }
 
 /**
- * Load products from Google Spreadsheet
+ * Load products from Google Spreadsheet (via opensheet.elk.sh)
  */
 export async function loadProductsFromSpreadsheet(): Promise<Product[]> {
   const spreadsheetId = getEnv('GOOGLE_SPREADSHEET_ID');
@@ -143,9 +198,24 @@ export async function loadProductsFromSpreadsheet(): Promise<Product[]> {
   }
 
   const data = (await response.json()) as Array<Record<string, unknown>>;
-  return data
-    .map(rowToProduct)
-    .filter((p): p is Product => p !== null);
+  if (data.length > 0) {
+    const headers = Object.keys(data[0]).map((h) => h.toLowerCase());
+    const hasId = headers.includes('id');
+    const hasName = headers.some((h) => ['name', 'nome'].includes(h));
+    const hasPrice = headers.some((h) =>
+      ['price', 'price_brl', 'preco', 'preco_brl'].includes(h),
+    );
+    if (!hasId || !hasName || !hasPrice) {
+      console.warn(
+        '[PRODUCTS] Spreadsheet is missing required columns. Found headers:',
+        headers,
+      );
+    }
+  }
+
+  return finalize(
+    data.map(rowToProduct).filter((p): p is Product => p !== null),
+  );
 }
 
 /**
