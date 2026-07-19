@@ -12,7 +12,7 @@ export default defineTool({
     const contact = await fetchStoreContact();
     return {
       content: [{ type: "text", text: JSON.stringify(contact, null, 2) }],
-      structuredContent: contact,
+      structuredContent: { contact: { ...contact } },
     };
   },
 });
