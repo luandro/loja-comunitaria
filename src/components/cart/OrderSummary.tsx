@@ -53,10 +53,8 @@ export const OrderSummary = ({
             }
             onRequest();
           }}
-          className={`mt-4 flex w-full items-center justify-center rounded px-6 py-3 text-white transition ${
-            canSubmit
-              ? 'bg-emerald-600 hover:bg-emerald-700'
-              : 'pointer-events-none bg-forest-300 opacity-60'
+          className={`btn mt-4 flex w-full items-center justify-center ${
+            canSubmit ? 'btn-primary' : 'pointer-events-none bg-sand-200 text-forest-600'
           }`}
         >
           <MessageSquare className="w-5 h-5 mr-2" />
