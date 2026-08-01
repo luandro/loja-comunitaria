@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useCart } from '@/hooks/use-cart';
 import { useSiteContent } from '@/context/SiteContentContext';
 import { CartItem, EmptyCart, OrderRequestForm, OrderSummary } from '@/components/cart';
@@ -22,7 +22,12 @@ const Cart = () => {
   const patchForm = (patch: Partial<OrderRequestData>) =>
     setForm((prev) => ({ ...prev, ...patch }));
 
-  const reference = orderId || createOrder();
+  const [reference, setReference] = useState(orderId);
+  useEffect(() => {
+    if (!orderId) setReference(createOrder());
+    else setReference(orderId);
+  }, [orderId, createOrder]);
+
   const canSubmit = !isEmpty && isOrderRequestValid(form);
   const { number: whatsappNumber } = resolveWhatsApp(content);
 
