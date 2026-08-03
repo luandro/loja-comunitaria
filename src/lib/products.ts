@@ -1,4 +1,5 @@
 import { getEnv } from './env';
+import { INVENTORY_TYPES, type InventoryType } from './inventory';
 
 export interface Product {
   id: number;
@@ -7,8 +8,12 @@ export interface Product {
   image: string;
   description: string;
   longDescription?: string;
-  quantity?: number; // If undefined or 0, product is treated as unique
-  isUnique?: boolean;
+  /** Inventory model reported by the store. */
+  inventoryType: InventoryType;
+  /** Reported stock. Only meaningful for `unique` and `limited`. */
+  stockQuantity?: number;
+  /** Estimated production time for `made_to_order` items. */
+  productionTime?: string;
   category?: string;
   featured?: boolean;
   active?: boolean;
@@ -23,6 +28,7 @@ export interface Product {
   seoTitle?: string;
   seoDescription?: string;
 }
+
 
 const truthy = (v: unknown) => {
   if (v === undefined || v === null) return false;
