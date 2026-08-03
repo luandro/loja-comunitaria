@@ -8,7 +8,10 @@ export interface CartItem {
   price: number;
   image: string;
   quantity: number;
+  /** Max units the store reported as available. undefined = no precise limit. */
+  maxQuantity?: number;
 }
+
 
 interface CartContextValue {
   cart: CartItem[];
