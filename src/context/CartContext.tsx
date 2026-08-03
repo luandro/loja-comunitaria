@@ -72,7 +72,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const updateQuantity = useCallback((id: number, quantity: number) => {
     if (quantity < 1) return;
-    setCart((prev) => prev.map((it) => (it.id === id ? { ...it, quantity } : it)));
+    setCart((prev) =>
+      prev.map((it) => {
+        if (it.id !== id) return it;
+        const capped =
+          it.maxQuantity !== undefined ? Math.min(quantity, it.maxQuantity) : quantity;
+        return { ...it, quantity: Math.max(1, capped) };
+      }),
+    );
   }, []);
 
   const removeItem = useCallback(
@@ -92,12 +99,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     (item: CartItem) => {
       setCart((prev) => {
         const existing = prev.find((i) => i.id === item.id);
+        const max = item.maxQuantity;
         if (existing) {
+          const desired = existing.quantity + item.quantity;
+          const next = max !== undefined ? Math.min(desired, max) : desired;
           return prev.map((i) =>
-            i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i,
+            i.id === item.id ? { ...i, maxQuantity: max, quantity: Math.max(1, next) } : i,
           );
         }
-        return [...prev, item];
+        const qty = max !== undefined ? Math.min(item.quantity, max) : item.quantity;
+        if (qty < 1) return prev;
+        return [...prev, { ...item, quantity: qty }];
       });
       toast({ description: 'Item adicionado ao carrinho' });
     },
