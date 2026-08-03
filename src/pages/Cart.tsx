@@ -48,9 +48,11 @@ const Cart = () => {
     <div className="bg-sand-50 py-16 animate-fadeIn">
       <div className="container mx-auto">
         <h1 className="text-3xl font-marcellus text-forest-900 mb-2">Seu Carrinho</h1>
-        <p className="text-forest-700 mb-8">
+        <p className="text-forest-700">
           Monte sua solicitação — a loja confirma disponibilidade, prazo e frete pelo WhatsApp.
         </p>
+        <p className="text-forest-700 mb-8 font-medium">Disponibilidade sujeita à confirmação.</p>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
