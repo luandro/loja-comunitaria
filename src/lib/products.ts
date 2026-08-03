@@ -142,15 +142,9 @@ function rowToProduct(row: Record<string, unknown>): Product | null {
         `[PRODUCTS] Missing inventory_type for product ${id} (${name}). Using legacy fallback — add inventory_type/tipo_estoque to the sheet.`,
       );
     }
-    if (stockQuantity === undefined) {
-      inventoryType = productionTime ? 'made_to_order' : 'available';
-    } else if (stockQuantity === 0) {
-      inventoryType = 'limited'; // stock 0 => unavailable, never "unique available"
-    } else if (stockQuantity === 1) {
-      inventoryType = 'limited';
-    } else {
-      inventoryType = 'limited';
-    }
+    // Legacy: a stock number means limited (0 => unavailable, never a "unique available" piece).
+    inventoryType =
+      stockQuantity === undefined ? (productionTime ? 'made_to_order' : 'available') : 'limited';
   }
 
   const galleryRaw = pick(row, 'gallery_image_urls', 'urls_galeria_imagens');
