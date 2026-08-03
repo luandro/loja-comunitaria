@@ -112,9 +112,46 @@ function rowToProduct(row: Record<string, unknown>): Product | null {
     return null;
   }
 
-  const qRaw = pick(row, 'quantity', 'stock_quantity', 'quantidade_estoque');
-  const quantity = qRaw ? Number.parseInt(qRaw, 10) : undefined;
-  const isUnique = quantity === undefined || quantity === 0;
+  // ---- Inventory ------------------------------------------------------
+  // Recommended columns: inventory_type/tipo_estoque, stock_quantity/quantidade_estoque,
+  // production_time/prazo_producao. Legacy sheets with only `quantity` still load.
+  const stockRaw = pick(row, 'stock_quantity', 'quantidade_estoque', 'quantity', 'estoque');
+  const parsedStock = stockRaw ? Number.parseInt(stockRaw, 10) : undefined;
+  const stockQuantity = Number.isFinite(parsedStock as number)
+    ? Math.max(0, parsedStock as number)
+    : undefined;
+
+  const productionTime =
+    pick(row, 'production_time', 'prazo_producao', 'prazo_de_producao') || undefined;
+
+  const typeRaw = pick(row, 'inventory_type', 'tipo_estoque')
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
+
+  let inventoryType: InventoryType;
+  if (INVENTORY_TYPES.includes(typeRaw as InventoryType)) {
+    inventoryType = typeRaw as InventoryType;
+  } else {
+    // Safe legacy fallback: never invent availability out of a missing/zero stock.
+    if (typeRaw) {
+      console.warn(
+        `[PRODUCTS] Unknown inventory_type "${typeRaw}" for product ${id} (${name}). Using legacy fallback.`,
+      );
+    } else {
+      console.warn(
+        `[PRODUCTS] Missing inventory_type for product ${id} (${name}). Using legacy fallback — add inventory_type/tipo_estoque to the sheet.`,
+      );
+    }
+    if (stockQuantity === undefined) {
+      inventoryType = productionTime ? 'made_to_order' : 'available';
+    } else if (stockQuantity === 0) {
+      inventoryType = 'limited'; // stock 0 => unavailable, never "unique available"
+    } else if (stockQuantity === 1) {
+      inventoryType = 'limited';
+    } else {
+      inventoryType = 'limited';
+    }
+  }
 
   const galleryRaw = pick(row, 'gallery_image_urls', 'urls_galeria_imagens');
   const galleryImages = galleryRaw
@@ -141,9 +178,16 @@ function rowToProduct(row: Record<string, unknown>): Product | null {
     image,
     description,
     longDescription,
-    quantity,
-    isUnique,
+    inventoryType,
+    stockQuantity:
+      inventoryType === 'unique'
+        ? Math.min(1, stockQuantity ?? 0)
+        : inventoryType === 'limited'
+          ? (stockQuantity ?? 0)
+          : undefined,
+    productionTime,
     active,
+
     category: pick(row, 'category', 'categoria') || undefined,
     featured: truthy(pick(row, 'featured', 'destaque')),
     galleryImages,
