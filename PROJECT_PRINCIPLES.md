@@ -16,7 +16,27 @@ Nada é cobrado, reservado ou confirmado automaticamente — a confirmação é 
 ## 3. Estoque é informativo
 
 As quantidades vindas da planilha são uma referência aproximada e estão sujeitas a
-confirmação pela comunidade no atendimento.
+confirmação pela comunidade no atendimento. Adicionar ao carrinho **não reserva** nada.
+
+### Estrutura recomendada de estoque na planilha (aba `Produtos`)
+
+| Coluna (EN / PT-BR)                    | Uso |
+| -------------------------------------- | --- |
+| `inventory_type` / `tipo_estoque`      | `unique`, `limited`, `made_to_order` ou `available` |
+| `stock_quantity` / `quantidade_estoque`| Quantidade reportada (obrigatória para `unique` e `limited`) |
+| `production_time` / `prazo_producao`   | Prazo estimado, usado em `made_to_order` (ex.: `15 a 20 dias`) |
+
+Interpretação:
+
+- `unique` + estoque `1` → peça única reportada como disponível.
+- `unique` + estoque `0` → vendida/indisponível (nunca aparece como disponível).
+- `limited` → usa `stock_quantity`; `0` significa esgotado.
+- `made_to_order` → sem quantidade; mostra o prazo de produção.
+- `available` → disponível em geral, sem contagem exata.
+
+Compatibilidade: planilhas antigas com apenas `quantity` continuam carregando —
+o app aplica um fallback seguro (número de estoque vira `limited`, sem estoque vira
+`available`/`made_to_order`) e registra um aviso no console pedindo a nova coluna.
 
 ## 4. A planilha contém apenas dados públicos de vitrine
 

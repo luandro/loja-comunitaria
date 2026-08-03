@@ -1,4 +1,5 @@
 import { getEnv } from './env';
+import { INVENTORY_TYPES, type InventoryType } from './inventory';
 
 export interface Product {
   id: number;
@@ -7,8 +8,12 @@ export interface Product {
   image: string;
   description: string;
   longDescription?: string;
-  quantity?: number; // If undefined or 0, product is treated as unique
-  isUnique?: boolean;
+  /** Inventory model reported by the store. */
+  inventoryType: InventoryType;
+  /** Reported stock. Only meaningful for `unique` and `limited`. */
+  stockQuantity?: number;
+  /** Estimated production time for `made_to_order` items. */
+  productionTime?: string;
   category?: string;
   featured?: boolean;
   active?: boolean;
@@ -23,6 +28,7 @@ export interface Product {
   seoTitle?: string;
   seoDescription?: string;
 }
+
 
 const truthy = (v: unknown) => {
   if (v === undefined || v === null) return false;
@@ -106,9 +112,40 @@ function rowToProduct(row: Record<string, unknown>): Product | null {
     return null;
   }
 
-  const qRaw = pick(row, 'quantity', 'stock_quantity', 'quantidade_estoque');
-  const quantity = qRaw ? Number.parseInt(qRaw, 10) : undefined;
-  const isUnique = quantity === undefined || quantity === 0;
+  // ---- Inventory ------------------------------------------------------
+  // Recommended columns: inventory_type/tipo_estoque, stock_quantity/quantidade_estoque,
+  // production_time/prazo_producao. Legacy sheets with only `quantity` still load.
+  const stockRaw = pick(row, 'stock_quantity', 'quantidade_estoque', 'quantity', 'estoque');
+  const parsedStock = stockRaw ? Number.parseInt(stockRaw, 10) : undefined;
+  const stockQuantity = Number.isFinite(parsedStock as number)
+    ? Math.max(0, parsedStock as number)
+    : undefined;
+
+  const productionTime =
+    pick(row, 'production_time', 'prazo_producao', 'prazo_de_producao') || undefined;
+
+  const typeRaw = pick(row, 'inventory_type', 'tipo_estoque')
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
+
+  let inventoryType: InventoryType;
+  if (INVENTORY_TYPES.includes(typeRaw as InventoryType)) {
+    inventoryType = typeRaw as InventoryType;
+  } else {
+    // Safe legacy fallback: never invent availability out of a missing/zero stock.
+    if (typeRaw) {
+      console.warn(
+        `[PRODUCTS] Unknown inventory_type "${typeRaw}" for product ${id} (${name}). Using legacy fallback.`,
+      );
+    } else {
+      console.warn(
+        `[PRODUCTS] Missing inventory_type for product ${id} (${name}). Using legacy fallback — add inventory_type/tipo_estoque to the sheet.`,
+      );
+    }
+    // Legacy: a stock number means limited (0 => unavailable, never a "unique available" piece).
+    inventoryType =
+      stockQuantity === undefined ? (productionTime ? 'made_to_order' : 'available') : 'limited';
+  }
 
   const galleryRaw = pick(row, 'gallery_image_urls', 'urls_galeria_imagens');
   const galleryImages = galleryRaw
@@ -135,9 +172,16 @@ function rowToProduct(row: Record<string, unknown>): Product | null {
     image,
     description,
     longDescription,
-    quantity,
-    isUnique,
+    inventoryType,
+    stockQuantity:
+      inventoryType === 'unique'
+        ? Math.min(1, stockQuantity ?? 0)
+        : inventoryType === 'limited'
+          ? (stockQuantity ?? 0)
+          : undefined,
+    productionTime,
     active,
+
     category: pick(row, 'category', 'categoria') || undefined,
     featured: truthy(pick(row, 'featured', 'destaque')),
     galleryImages,

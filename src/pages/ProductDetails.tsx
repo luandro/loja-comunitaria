@@ -7,6 +7,8 @@ import { useCart } from "@/hooks/use-cart";
 import type { Product } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { InventoryBadge } from "@/components/InventoryBadge";
+import { AVAILABILITY_DISCLAIMER, getInventoryStatus } from "@/lib/inventory";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -23,16 +25,24 @@ const ProductDetails = () => {
   // Check if product is in cart
   const existingCartItem = cart.find(item => item.id === Number(id));
 
-  // Calculate available quantity
-  const availableQuantity = product?.quantity !== undefined
-    ? product.quantity - (existingCartItem?.quantity || 0)
-    : product?.isUnique && existingCartItem ? 0 : 1;
+  const status = product
+    ? getInventoryStatus({
+        inventoryType: product.inventoryType,
+        stockQuantity: product.stockQuantity,
+        productionTime: product.productionTime,
+      })
+    : undefined;
 
-  // Check if product is unique
-  const isUnique = product?.isUnique || false;
+  const isUnique = status?.type === "unique";
+  const inCartQty = existingCartItem?.quantity || 0;
 
-  // Check if product is out of stock
-  const isOutOfStock = availableQuantity <= 0;
+  // Units the customer can still add (undefined limit = no precise tracking)
+  const availableQuantity =
+    status?.maxQuantity !== undefined ? status.maxQuantity - inCartQty : Number.POSITIVE_INFINITY;
+
+  const isSoldOut = status?.isSoldOut ?? false;
+  const isOutOfStock = isSoldOut || availableQuantity <= 0;
+  const showQuantityPicker = !isUnique && !isSoldOut;
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -86,15 +96,13 @@ const ProductDetails = () => {
   const handleAddToCart = () => {
     if (!product || isOutOfStock) return;
 
-    // For unique items, only allow one
+    // Unique pieces can only appear once in the cart
     const quantityToAdd = isUnique ? 1 : quantity;
 
-    // Check if adding this quantity exceeds available stock
-    const totalQuantity = (existingCartItem?.quantity || 0) + quantityToAdd;
-    if (product.quantity !== undefined && totalQuantity > product.quantity) {
+    if (status?.maxQuantity !== undefined && inCartQty + quantityToAdd > status.maxQuantity) {
       toast({
         title: "Quantidade indisponível",
-        description: `Apenas ${product.quantity - (existingCartItem?.quantity || 0)} unidades disponíveis.`,
+        description: `A loja reportou apenas ${Math.max(0, status.maxQuantity - inCartQty)} unidade(s).`,
         variant: "destructive"
       });
       return;
@@ -105,7 +113,8 @@ const ProductDetails = () => {
       name: product.name,
       price: product.price,
       image: product.image,
-      quantity: quantityToAdd
+      quantity: quantityToAdd,
+      maxQuantity: status?.maxQuantity,
     });
 
     // Navigate to cart if unique item
@@ -152,11 +161,7 @@ const ProductDetails = () => {
               alt={product.name}
               className="w-full h-full object-cover"
             />
-            {isUnique && (
-              <div className="absolute top-4 right-4 bg-amber-400 text-white px-3 py-1 rounded-full text-sm font-bold">
-                PEÇA ÚNICA
-              </div>
-            )}
+            {status && <InventoryBadge status={status} className="absolute top-4 right-4" />}
           </div>
 
           <div className="space-y-6">
@@ -167,12 +172,11 @@ const ProductDetails = () => {
               R$ {product.price.toFixed(2)}
             </p>
 
-            {!isUnique && product.quantity !== undefined && (
-              <p className={`text-sm ${availableQuantity <= 3 && availableQuantity > 0 ? 'text-amber-600 font-medium' : 'text-forest-600'}`}>
-                {availableQuantity > 0
-                  ? `${availableQuantity} unidades disponíveis`
-                  : 'Produto esgotado'}
-              </p>
+            {status && (
+              <div className="space-y-1">
+                <p className="text-sm text-forest-700">{status.message}</p>
+                <p className="text-sm text-forest-600">{AVAILABILITY_DISCLAIMER}</p>
+              </div>
             )}
 
             <p className="text-forest-700">
@@ -183,14 +187,16 @@ const ProductDetails = () => {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  {isUnique && existingCartItem
-                    ? 'Este produto já está no seu carrinho e é uma peça única.'
-                    : 'Este produto está esgotado no momento.'}
+                  {isSoldOut
+                    ? 'Este produto está indisponível no momento.'
+                    : isUnique
+                      ? 'Esta peça única já está no seu carrinho.'
+                      : 'Você já adicionou todas as unidades reportadas.'}
                 </AlertDescription>
               </Alert>
             )}
 
-            {!isUnique && (
+            {showQuantityPicker && (
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -225,10 +231,14 @@ const ProductDetails = () => {
                 : 'Adicionar ao Carrinho'}
             </Button>
 
-            {isUnique && !isOutOfStock && (
+            {status?.type === "unique" && !isSoldOut && (
               <p className="text-sm text-amber-600 italic">
-                Peça única - Este produto é feito artesanalmente e possui apenas uma unidade disponível.
+                Peça única — feita artesanalmente, com uma só unidade reportada pela loja.
               </p>
+            )}
+
+            {status?.type === "made_to_order" && (
+              <p className="text-sm text-forest-700 italic">{status.message}</p>
             )}
           </div>
         </div>
