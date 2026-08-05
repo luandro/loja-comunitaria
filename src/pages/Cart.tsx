@@ -65,7 +65,18 @@ const Cart = () => {
               />
             ))}
 
-            <OrderRequestForm data={form} onChange={patchForm} />
+            <OrderRequestForm
+              data={form}
+              onChange={patchForm}
+              cep={{
+                enabled: content.cep_lookup_enabled?.toString().toLowerCase() !== 'false',
+                privacyNotice: content.cep_lookup_privacy_notice || undefined,
+                loading: content.cep_lookup_loading_message || undefined,
+                success: content.cep_lookup_success_message || undefined,
+                partial: content.cep_lookup_partial_message || undefined,
+                error: content.cep_lookup_error_message || undefined,
+              }}
+            />
           </div>
 
           <OrderSummary
