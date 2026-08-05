@@ -55,6 +55,14 @@ export interface SiteContent {
   shipping_policy: string;
   checkout_instructions: string;
 
+  // CEP lookup
+  cep_lookup_enabled: string;
+  cep_lookup_privacy_notice: string;
+  cep_lookup_loading_message: string;
+  cep_lookup_success_message: string;
+  cep_lookup_partial_message: string;
+  cep_lookup_error_message: string;
+
   // SEO
   meta_title: string;
   meta_description: string;
@@ -111,6 +119,16 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   shipping_policy: '',
   checkout_instructions: '',
 
+  cep_lookup_enabled: 'true',
+  cep_lookup_privacy_notice:
+    'O CEP é consultado em um serviço público para ajudar a preencher o endereço. Confira os dados antes de enviar.',
+  cep_lookup_loading_message: 'Buscando endereço…',
+  cep_lookup_success_message: 'Endereço encontrado. Confira os dados e informe o número.',
+  cep_lookup_partial_message:
+    'Encontramos apenas parte do endereço. Complete os campos que faltam.',
+  cep_lookup_error_message:
+    'Não foi possível consultar o CEP agora. Você pode preencher o endereço manualmente.',
+
   meta_title: 'Loja Comunitária – Artesanatos Indígenas Autênticos',
   meta_description:
     'E-commerce de artesanatos indígenas com produtos exclusivos e autênticos.',
@@ -166,6 +184,13 @@ const KEY_ALIASES: Record<string, string> = {
   texto_copyright: 'copyright_text',
   politica_envio: 'shipping_policy',
   instrucoes_checkout: 'checkout_instructions',
+  // CEP lookup
+  consulta_cep_ativa: 'cep_lookup_enabled',
+  aviso_privacidade_cep: 'cep_lookup_privacy_notice',
+  mensagem_carregando_cep: 'cep_lookup_loading_message',
+  mensagem_sucesso_cep: 'cep_lookup_success_message',
+  mensagem_parcial_cep: 'cep_lookup_partial_message',
+  mensagem_erro_cep: 'cep_lookup_error_message',
 };
 
 /**
