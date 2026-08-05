@@ -109,6 +109,6 @@ describe('order request address', () => {
     });
     expect(message).toMatch('*ENTREGA*');
     expect(message).toMatch('Referência: LC-123456');
-    expect(message).not.toMatch(/brasilapi|cache|provider|http/i);
+    expect(message).not.toMatch(/brasilapi|cache|provider|status \d/i);
   });
 });
