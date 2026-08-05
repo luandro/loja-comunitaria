@@ -1,12 +1,23 @@
 import type { CartItem } from '@/context/CartContext';
 
+export type DeliveryMethod = 'entrega' | 'retirada';
+
+/** Which address fields were filled by the CEP lookup and not touched since. */
+export type AutoFilledAddressField = 'street' | 'neighborhood' | 'city' | 'state';
+
 export interface OrderRequestData {
   name: string;
   phone: string;
-  zip: string;
+  cep: string;
+  street: string;
+  number: string;
+  noNumber: boolean;
+  complement: string;
+  neighborhood: string;
   city: string;
   state: string;
-  delivery: 'entrega' | 'retirada';
+  landmark: string;
+  delivery: DeliveryMethod;
   notes: string;
   acknowledged: boolean;
 }
@@ -14,19 +25,43 @@ export interface OrderRequestData {
 export const EMPTY_ORDER_REQUEST: OrderRequestData = {
   name: '',
   phone: '',
-  zip: '',
+  cep: '',
+  street: '',
+  number: '',
+  noNumber: false,
+  complement: '',
+  neighborhood: '',
   city: '',
   state: '',
+  landmark: '',
   delivery: 'entrega',
   notes: '',
   acknowledged: false,
 };
 
-export const isOrderRequestValid = (data: OrderRequestData): boolean =>
-  data.name.trim().length > 1 &&
-  data.city.trim().length > 1 &&
-  data.state.trim().length > 0 &&
-  data.acknowledged;
+const filled = (value: string) => value.trim().length > 0;
+
+/** The number field accepts "S/N" as an explicit no-number value. */
+export const hasNumber = (data: OrderRequestData): boolean =>
+  data.noNumber || /^s\/?n$/i.test(data.number.trim()) || filled(data.number);
+
+export const resolvedNumber = (data: OrderRequestData): string => {
+  const raw = data.number.trim();
+  if (data.noNumber || /^s\/?n$/i.test(raw)) return 'S/N';
+  return raw;
+};
+
+export function isOrderRequestValid(data: OrderRequestData): boolean {
+  if (data.name.trim().length < 2) return false;
+  if (!data.acknowledged) return false;
+
+  // Local pickup never requires a delivery address.
+  if (data.delivery === 'retirada') return true;
+
+  if (!filled(data.city) || !filled(data.state)) return false;
+  if (!hasNumber(data)) return false;
+  return true;
+}
 
 /** Reference code for the request — NOT a confirmed order number. */
 export const generateReferenceCode = (): string => {
@@ -44,6 +79,48 @@ const productUrl = (id: number) => {
   if (typeof window === 'undefined') return '';
   return `${window.location.origin}/produto/${id}`;
 };
+
+const maskedCep = (value: string) => {
+  const digits = value.replace(/\D/g, '');
+  return digits.length === 8 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : value.trim();
+};
+
+/** Delivery block — only fields that actually have values are included. */
+export function buildAddressBlock(data: OrderRequestData): string[] {
+  if (data.delivery === 'retirada') {
+    return ['*RETIRADA*', 'Retirada combinada com a loja.'];
+  }
+
+  const lines: string[] = ['*ENTREGA*'];
+  const push = (label: string, value: string) => {
+    if (filled(value)) lines.push(`${label}: ${value.trim()}`);
+  };
+
+  push('Nome', data.name);
+  if (filled(data.cep)) push('CEP', maskedCep(data.cep));
+
+  const num = resolvedNumber(data);
+  if (filled(data.street)) {
+    push('Endereço', num ? `${data.street.trim()}, ${num}` : data.street.trim());
+  } else {
+    if (filled(data.neighborhood) || filled(data.city)) {
+      push('Localidade', data.neighborhood.trim() || data.city.trim());
+    }
+    if (num) push('Número', num);
+  }
+
+  push('Complemento', data.complement);
+  if (filled(data.street)) push('Bairro', data.neighborhood);
+  if (filled(data.city) && filled(data.state)) {
+    lines.push(`Cidade/UF: ${data.city.trim()}/${data.state.trim().toUpperCase()}`);
+  } else {
+    push('Cidade', data.city);
+    push('Estado', data.state);
+  }
+  push('Ponto de referência', data.landmark);
+
+  return lines;
+}
 
 export function buildOrderRequestMessage(params: {
   cart: CartItem[];
@@ -75,11 +152,14 @@ export function buildOrderRequestMessage(params: {
   lines.push('');
   lines.push('*DADOS*');
   lines.push(`Nome: ${data.name.trim()}`);
-  lines.push(`Telefone: ${data.phone.trim() || '—'}`);
-  lines.push(`CEP: ${data.zip.trim() || '—'}`);
-  lines.push(`Cidade/UF: ${data.city.trim()}/${data.state.trim().toUpperCase()}`);
+  if (filled(data.phone)) lines.push(`Telefone: ${data.phone.trim()}`);
   lines.push(`Entrega ou retirada: ${data.delivery === 'entrega' ? 'Entrega' : 'Retirada'}`);
-  lines.push(`Observações: ${data.notes.trim() || '—'}`);
+  lines.push('');
+  lines.push(...buildAddressBlock(data));
+  if (filled(data.notes)) {
+    lines.push('');
+    lines.push(`Observações: ${data.notes.trim()}`);
+  }
   lines.push('');
   lines.push(
     'Entendo que a disponibilidade dos produtos, o prazo e o valor do frete ainda precisam ser confirmados.',
