@@ -53,3 +53,35 @@ da comunidade. O Pix (quando usado) é gerado no navegador, sem intermediários.
 Uma comunidade deve conseguir clonar o projeto, apontar as variáveis de ambiente para
 a sua planilha e o seu WhatsApp, e publicar — sem tocar em código e sem contratar
 serviços pagos para a operação básica.
+
+## 7. Consulta de CEP: ajuda no preenchimento, não validação
+
+O formulário de solicitação consulta o CEP direto no navegador, na **BrasilAPI**
+(`https://brasilapi.com.br/api/cep/v1/{cep}`).
+
+O que a comunidade precisa saber:
+
+- O preenchimento automático é **assistência opcional**, não validação de endereço.
+- Todos os campos retornados continuam **editáveis** pelo cliente.
+- CEPs rurais, ribeirinhos, indígenas e de comunidades podem retornar apenas
+  cidade/UF — isso é um resultado **parcial válido**, não um erro.
+- Endereços sem rua, bairro ou número são aceitos (há a opção “Sem número” / `S/N`
+  e o campo “Ponto de referência”).
+- Se o serviço estiver fora do ar ou o cliente estiver offline, a loja continua
+  funcionando: o endereço é preenchido manualmente e o pedido segue normalmente.
+- O provedor recebe **apenas o CEP** — nunca nome, telefone, número, complemento
+  ou o conteúdo do pedido.
+- **Nenhuma chave de API e nenhum backend** são necessários.
+- Resultados públicos de CEP ficam em cache local (até 50 CEPs, 30 dias); dados
+  pessoais nunca são armazenados nesse cache.
+
+### Chaves opcionais na aba `Conteudo_Site`
+
+| Chave (EN / PT-BR) | Uso |
+| --- | --- |
+| `cep_lookup_enabled` / `consulta_cep_ativa` | `false` desliga a consulta (formulário segue manual) |
+| `cep_lookup_privacy_notice` / `aviso_privacidade_cep` | Aviso exibido abaixo do campo CEP |
+| `cep_lookup_loading_message` / `mensagem_carregando_cep` | Texto de carregamento |
+| `cep_lookup_success_message` / `mensagem_sucesso_cep` | Sucesso |
+| `cep_lookup_partial_message` / `mensagem_parcial_cep` | Resultado parcial |
+| `cep_lookup_error_message` / `mensagem_erro_cep` | Falha de rede/provedor |
