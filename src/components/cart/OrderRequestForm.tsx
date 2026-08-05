@@ -37,7 +37,16 @@ const inputClass =
 const labelClass = 'block text-sm text-forest-800 mb-1';
 
 export const OrderRequestForm = ({ data, onChange, cep }: OrderRequestFormProps) => {
-  const messages = { ...DEFAULT_CEP_MESSAGES, ...cep };
+  const messages: CepMessages = { ...DEFAULT_CEP_MESSAGES };
+  if (cep) {
+    (Object.keys(cep) as Array<keyof CepMessages>).forEach((k) => {
+      const v = cep[k];
+      if (v !== undefined && v !== null && v !== '') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (messages as any)[k] = v;
+      }
+    });
+  }
   const numberRef = useRef<HTMLInputElement>(null);
   const [cepTouched, setCepTouched] = useState(false);
   /** Fields written by the lookup and not manually edited since. */
