@@ -1,128 +1,146 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { MessageSquare, Mail, MapPin, Clock, Send } from "lucide-react";
-import { getWhatsAppContactLink } from "@/lib/whatsapp";
-import { useSiteContent } from "@/context/SiteContentContext";
-import { resolveWhatsApp } from "@/lib/site-content";
+import { useStore } from "@/hooks/use-store";
 
 const Contact = () => {
   const { toast } = useToast();
-  const { content } = useSiteContent();
-  const whatsappLink = getWhatsAppContactLink(resolveWhatsApp(content));
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
+  const store = useStore();
+  const { contact } = store;
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
-      title: "Mensagem enviada!",
-      description: "Entraremos em contato em breve.",
+      title: store.t("message_sent_title"),
+      description: store.t("message_sent_description"),
     });
     setFormData({ name: "", email: "", message: "" });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
     <div className="bg-sand-50 py-16 animate-fadeIn">
       <div className="container mx-auto">
         <h1 className="text-4xl font-marcellus text-forest-900 text-center mb-12">
-          Entre em Contato
+          {store.t("contact_page_title")}
         </h1>
 
-        {/* WhatsApp CTA Banner */}
-        <div className="max-w-3xl mx-auto mb-12">
-          <a
-            href={whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white py-5 px-8 rounded-lg shadow-md transition-colors"
-          >
-            <MessageSquare className="w-7 h-7 mr-3" />
-            <div className="text-left">
-              <span className="block text-lg font-semibold">Fale conosco pelo WhatsApp</span>
-              <span className="block text-sm text-emerald-100">Resposta rápida e personalizada</span>
-            </div>
-          </a>
-        </div>
+        {contact.hasWhatsApp && (
+          <div className="max-w-3xl mx-auto mb-12">
+            <a
+              href={contact.whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white py-5 px-8 rounded-lg shadow-md transition-colors"
+            >
+              <MessageSquare className="w-7 h-7 mr-3" />
+              <div className="text-left">
+                <span className="block text-lg font-semibold">{store.t("whatsapp_cta_title")}</span>
+                <span className="block text-sm text-emerald-100">
+                  {store.t("whatsapp_cta_subtitle")}
+                </span>
+              </div>
+            </a>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="space-y-8">
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h2 className="text-2xl font-marcellus text-forest-900 mb-6">
-                Informações de Contato
+                {store.t("contact_info_title")}
               </h2>
               <div className="space-y-5">
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-3 group"
-                >
-                  <span className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
-                    <MessageSquare className="w-5 h-5 text-emerald-600" />
-                  </span>
-                  <div>
-                    <span className="block text-sm font-semibold text-forest-900">WhatsApp</span>
-                    <span className="text-emerald-600 group-hover:text-emerald-700 transition-colors">Clique para conversar</span>
+                {contact.hasWhatsApp && (
+                  <a
+                    href={contact.whatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 group"
+                  >
+                    <span className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                      <MessageSquare className="w-5 h-5 text-emerald-600" />
+                    </span>
+                    <div>
+                      <span className="block text-sm font-semibold text-forest-900">
+                        {store.t("whatsapp")}
+                      </span>
+                      <span className="text-emerald-600 group-hover:text-emerald-700 transition-colors">
+                        {store.t("whatsapp_click_to_talk")}
+                      </span>
+                    </div>
+                  </a>
+                )}
+                {contact.location && (
+                  <div className="flex items-center space-x-3">
+                    <span className="w-10 h-10 rounded-full bg-sand-100 flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-terra-500" />
+                    </span>
+                    <div>
+                      <span className="block text-sm font-semibold text-forest-900">
+                        {store.t("address")}
+                      </span>
+                      <span className="text-forest-700">{contact.location}</span>
+                    </div>
                   </div>
-                </a>
-                <div className="flex items-center space-x-3">
-                  <span className="w-10 h-10 rounded-full bg-sand-100 flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-terra-500" />
-                  </span>
-                  <div>
-                    <span className="block text-sm font-semibold text-forest-900">Endereço</span>
-                    <span className="text-forest-700">{content.location}</span>
+                )}
+                {contact.email && (
+                  <div className="flex items-center space-x-3">
+                    <span className="w-10 h-10 rounded-full bg-sand-100 flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-terra-500" />
+                    </span>
+                    <div>
+                      <span className="block text-sm font-semibold text-forest-900">
+                        {store.t("email")}
+                      </span>
+                      <span className="text-forest-700">{contact.email}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="w-10 h-10 rounded-full bg-sand-100 flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-terra-500" />
-                  </span>
-                  <div>
-                    <span className="block text-sm font-semibold text-forest-900">E-mail</span>
-                    <span className="text-forest-700">{content.email}</span>
+                )}
+                {contact.businessHours && (
+                  <div className="flex items-center space-x-3">
+                    <span className="w-10 h-10 rounded-full bg-sand-100 flex items-center justify-center">
+                      <Clock className="w-5 h-5 text-terra-500" />
+                    </span>
+                    <div>
+                      <span className="block text-sm font-semibold text-forest-900">
+                        {store.t("business_hours")}
+                      </span>
+                      <span className="text-forest-700">{contact.businessHours}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="w-10 h-10 rounded-full bg-sand-100 flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-terra-500" />
-                  </span>
-                  <div>
-                    <span className="block text-sm font-semibold text-forest-900">Horário de Atendimento</span>
-                    <span className="text-forest-700">{content.business_hours}</span>
-                  </div>
-                </div>
+                )}
+                {!contact.hasAnyChannel && (
+                  <p className="text-forest-700">{store.t("no_contact_channel")}</p>
+                )}
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-2xl font-marcellus text-forest-900 mb-4">
-                Preferência de Atendimento
-              </h2>
-              <p className="text-forest-700">
-                Para um atendimento mais ágil e personalizado, recomendamos o contato via WhatsApp.
-                Respondemos em poucos minutos durante o horário comercial.
-              </p>
-            </div>
+            {store.optional("checkout_instructions") && (
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h2 className="text-2xl font-marcellus text-forest-900 mb-4">
+                  {store.t("order_summary_title")}
+                </h2>
+                <p className="text-forest-700 whitespace-pre-line">
+                  {store.optional("checkout_instructions")}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="bg-white p-8 rounded-lg shadow-sm">
             <h2 className="text-2xl font-marcellus text-forest-900 mb-6">
-              Envie sua Mensagem
+              {store.t("contact_form_title")}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-forest-700 mb-1">
-                  Nome
+                  {store.t("field_name")}
                 </label>
                 <input
                   type="text"
@@ -137,7 +155,7 @@ const Contact = () => {
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-forest-700 mb-1">
-                  E-mail
+                  {store.t("field_email")}
                 </label>
                 <input
                   type="email"
@@ -152,7 +170,7 @@ const Contact = () => {
 
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-forest-700 mb-1">
-                  Mensagem
+                  {store.t("field_message")}
                 </label>
                 <textarea
                   id="message"
@@ -167,7 +185,7 @@ const Contact = () => {
 
               <button type="submit" className="btn btn-primary w-full flex items-center justify-center">
                 <Send className="w-4 h-4 mr-2" />
-                Enviar Mensagem
+                {store.t("send_message")}
               </button>
             </form>
           </div>

@@ -10,6 +10,7 @@ import { SiteContentProvider } from "@/context/SiteContentContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { WhatsAppFloat } from "./components/WhatsAppFloat";
+import { StoreDiagnostics } from "./components/StoreDiagnostics";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
@@ -28,6 +29,7 @@ const App = () => (
         <BrowserRouter>
           <CartProvider>
             <div className="flex flex-col min-h-screen">
+              <StoreDiagnostics />
               <Navbar />
               <main className="flex-grow">
                 <Routes>

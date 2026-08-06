@@ -3,6 +3,10 @@ import { getEnv } from './env';
 /**
  * All site-wide content keys editable from the Conteudo_Site (or Site_Content) tab
  * in the Google Spreadsheet (CMS). Add new keys here as the sheet grows.
+ *
+ * IMPORTANT: defaults must stay white-label. Store-specific values (name, texts,
+ * contact data, city) default to an empty string so the UI can hide the feature
+ * or show a diagnostics warning instead of displaying fake data.
  */
 export interface SiteContent {
   // Branding
@@ -11,6 +15,13 @@ export interface SiteContent {
   logo_url: string;
   favicon_url: string;
   og_image_url: string;
+
+  // Navigation labels
+  home_label: string;
+  products_label: string;
+  about_label: string;
+  contact_label: string;
+  cart_label: string;
 
   // Theme
   primary_color: string;
@@ -25,11 +36,14 @@ export interface SiteContent {
   hero_button_label: string;
   hero_image_url: string;
 
-  // Products page / cards
+  // Catalog
   featured_products_title: string;
-  all_products_button_label: string;
   products_page_title: string;
+  all_products_button_label: string;
+  search_placeholder: string;
+  empty_catalog_message: string;
   add_to_cart_label: string;
+  request_order_label: string;
   stock_label_singular: string;
   stock_label_plural: string;
 
@@ -38,22 +52,40 @@ export interface SiteContent {
   about_text: string;
   about_button_label: string;
   about_image_url: string;
+  mission_text: string;
+  values_text: string;
+  commitment_text: string;
 
-  // Footer / Contact
-  footer_store_name: string;
-  footer_tagline: string;
+  // Ordering
+  order_notice: string;
+  inventory_notice: string;
+  checkout_mode: string;
+  checkout_instructions: string;
+  shipping_policy: string;
+  pickup_available: string;
+
+  // Contact
   whatsapp_number: string;
   whatsapp_message: string;
   email: string;
   location: string;
   business_hours: string;
-  pix_key: string;
-  pix_qr_image_url: string;
   instagram_url: string;
   facebook_url: string;
+
+  // Footer
+  footer_store_name: string;
+  footer_tagline: string;
   copyright_text: string;
-  shipping_policy: string;
-  checkout_instructions: string;
+
+  // Language / formatting
+  default_language: string;
+  currency: string;
+  locale: string;
+
+  // Payment (only ever shown when explicitly configured)
+  pix_key: string;
+  pix_qr_image_url: string;
 
   // CEP lookup
   cep_lookup_enabled: string;
@@ -72,12 +104,17 @@ export interface SiteContent {
 }
 
 export const DEFAULT_SITE_CONTENT: SiteContent = {
-  site_name: 'Artesanatos Indígenas',
-  site_tagline:
-    'Conectando a arte indígena brasileira com amantes de artesanato em todo o mundo.',
+  site_name: '',
+  site_tagline: '',
   logo_url: '',
   favicon_url: '',
   og_image_url: '',
+
+  home_label: '',
+  products_label: '',
+  about_label: '',
+  contact_label: '',
+  cart_label: '',
 
   primary_color: '',
   secondary_color: '',
@@ -85,39 +122,54 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   background_color: '',
   sand_color: '',
 
-  hero_title: 'Arte Indígena Autêntica',
-  hero_description:
-    'Descubra a riqueza do artesanato indígena brasileiro: peças únicas que contam histórias milenares.',
-  hero_button_label: 'Explorar Produtos',
+  hero_title: '',
+  hero_description: '',
+  hero_button_label: '',
   hero_image_url: '',
 
-  featured_products_title: 'Produtos em Destaque',
-  all_products_button_label: 'Ver todos os produtos',
-  products_page_title: 'Nossos Produtos',
-  add_to_cart_label: 'Adicionar ao carrinho',
-  stock_label_singular: 'em estoque',
-  stock_label_plural: 'em estoque',
+  featured_products_title: '',
+  products_page_title: '',
+  all_products_button_label: '',
+  search_placeholder: '',
+  empty_catalog_message: '',
+  add_to_cart_label: '',
+  request_order_label: '',
+  stock_label_singular: '',
+  stock_label_plural: '',
 
-  about_title: 'Nossa História',
-  about_text:
-    'A Tribal Artesanatos nasceu do desejo de valorizar e compartilhar a rica tradição artística dos povos indígenas brasileiros. Cada peça em nossa loja carrega consigo séculos de história e cultura.',
-  about_button_label: 'Conheça Nossa História',
-  about_image_url: '/placeholder.svg',
+  about_title: '',
+  about_text: '',
+  about_button_label: '',
+  about_image_url: '',
+  mission_text: '',
+  values_text: '',
+  commitment_text: '',
+
+  order_notice: '',
+  inventory_notice: '',
+  checkout_mode: 'whatsapp',
+  checkout_instructions: '',
+  shipping_policy: '',
+  pickup_available: '',
+
+  whatsapp_number: '',
+  whatsapp_message: '',
+  email: '',
+  location: '',
+  business_hours: '',
+  instagram_url: '',
+  facebook_url: '',
 
   footer_store_name: '',
   footer_tagline: '',
-  whatsapp_number: '',
-  whatsapp_message: '',
-  email: 'contato@tribalartesanatos.com',
-  location: 'São Paulo, SP',
-  business_hours: 'Seg-Sex: 9h às 18h · Sáb: 9h às 13h',
+  copyright_text: '',
+
+  default_language: 'pt-BR',
+  currency: 'BRL',
+  locale: 'pt-BR',
+
   pix_key: '',
   pix_qr_image_url: '',
-  instagram_url: '',
-  facebook_url: '',
-  copyright_text: '',
-  shipping_policy: '',
-  checkout_instructions: '',
 
   cep_lookup_enabled: 'true',
   cep_lookup_privacy_notice:
@@ -129,9 +181,8 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   cep_lookup_error_message:
     'Não foi possível consultar o CEP agora. Você pode preencher o endereço manualmente.',
 
-  meta_title: 'Loja Comunitária – Artesanatos Indígenas Autênticos',
-  meta_description:
-    'E-commerce de artesanatos indígenas com produtos exclusivos e autênticos.',
+  meta_title: '',
+  meta_description: '',
 };
 
 /**
@@ -147,6 +198,12 @@ const KEY_ALIASES: Record<string, string> = {
   url_imagem_og: 'og_image_url',
   titulo_meta: 'meta_title',
   descricao_meta: 'meta_description',
+  // Navigation
+  rotulo_inicio: 'home_label',
+  rotulo_produtos: 'products_label',
+  rotulo_sobre: 'about_label',
+  rotulo_contato: 'contact_label',
+  rotulo_carrinho: 'cart_label',
   // Theme
   cor_primaria: 'primary_color',
   cor_secundaria: 'secondary_color',
@@ -158,11 +215,14 @@ const KEY_ALIASES: Record<string, string> = {
   descricao_hero: 'hero_description',
   texto_botao_hero: 'hero_button_label',
   url_imagem_hero: 'hero_image_url',
-  // Products
+  // Catalog
   titulo_produtos_destaque: 'featured_products_title',
   texto_botao_todos_produtos: 'all_products_button_label',
   titulo_pagina_produtos: 'products_page_title',
+  placeholder_busca: 'search_placeholder',
+  mensagem_catalogo_vazio: 'empty_catalog_message',
   texto_adicionar_carrinho: 'add_to_cart_label',
+  texto_solicitar_pedido: 'request_order_label',
   rotulo_estoque_singular: 'stock_label_singular',
   rotulo_estoque_plural: 'stock_label_plural',
   // About
@@ -170,20 +230,35 @@ const KEY_ALIASES: Record<string, string> = {
   texto_sobre: 'about_text',
   texto_botao_sobre: 'about_button_label',
   url_imagem_sobre: 'about_image_url',
-  // Footer / contact
-  nome_footer: 'footer_store_name',
-  slogan_footer: 'footer_tagline',
+  texto_missao: 'mission_text',
+  texto_valores: 'values_text',
+  texto_compromisso: 'commitment_text',
+  // Ordering
+  aviso_pedido: 'order_notice',
+  aviso_estoque: 'inventory_notice',
+  modo_checkout: 'checkout_mode',
+  instrucoes_checkout: 'checkout_instructions',
+  politica_envio: 'shipping_policy',
+  retirada_disponivel: 'pickup_available',
+  // Contact
   numero_whatsapp: 'whatsapp_number',
   mensagem_whatsapp: 'whatsapp_message',
+  email_contato: 'email',
   localizacao: 'location',
   horario_atendimento: 'business_hours',
-  chave_pix: 'pix_key',
-  url_qr_pix: 'pix_qr_image_url',
   url_instagram: 'instagram_url',
   url_facebook: 'facebook_url',
+  // Footer
+  nome_footer: 'footer_store_name',
+  slogan_footer: 'footer_tagline',
   texto_copyright: 'copyright_text',
-  politica_envio: 'shipping_policy',
-  instrucoes_checkout: 'checkout_instructions',
+  // Language
+  idioma_padrao: 'default_language',
+  moeda: 'currency',
+  local: 'locale',
+  // Payment
+  chave_pix: 'pix_key',
+  url_qr_pix: 'pix_qr_image_url',
   // CEP lookup
   consulta_cep_ativa: 'cep_lookup_enabled',
   aviso_privacidade_cep: 'cep_lookup_privacy_notice',
@@ -246,6 +321,7 @@ export async function loadSiteContent(): Promise<SiteContent> {
 
 /**
  * Resolve the WhatsApp number / message — prefers sheet value, falls back to env.
+ * Returns empty strings when nothing is configured (never a placeholder number).
  */
 export function resolveWhatsApp(content: SiteContent) {
   const number = content.whatsapp_number?.trim() || getEnv('WHATSAPP_NUMBER');
