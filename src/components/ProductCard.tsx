@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
+import { useStore } from "@/hooks/use-store";
 import { Button } from "@/components/ui/button";
 import { InventoryBadge } from "@/components/InventoryBadge";
-import { AVAILABILITY_DISCLAIMER, getInventoryStatus, type InventoryType } from "@/lib/inventory";
+import { getInventoryStatus, type InventoryType } from "@/lib/inventory";
 
 interface ProductCardProps {
   id: number;
@@ -27,6 +28,7 @@ const ProductCard = ({
   productionTime,
 }: ProductCardProps) => {
   const { addItem, cart } = useCart();
+  const store = useStore();
   const status = getInventoryStatus({ inventoryType, stockQuantity, productionTime });
 
   const existingItem = cart.find((item) => item.id === id);
@@ -63,6 +65,7 @@ const ProductCard = ({
           <img
             src={image}
             alt={name}
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           <InventoryBadge status={status} className="absolute top-2 right-2" />
@@ -72,7 +75,7 @@ const ProductCard = ({
           <p className="text-sm text-forest-600 mb-2 line-clamp-2">{description}</p>
 
           <div className="flex justify-between items-center gap-2">
-            <p className="text-terra-600 font-semibold">R$ {price.toFixed(2)}</p>
+            <p className="text-terra-600 font-semibold">{store.formatPrice(price)}</p>
             <p className="text-xs text-forest-600 text-right">{status.message}</p>
           </div>
         </div>
@@ -87,14 +90,16 @@ const ProductCard = ({
         >
           <ShoppingCart className="mr-2 h-4 w-4" />
           {status.isSoldOut
-            ? "Esgotado"
+            ? store.t("sold_out_label")
             : reachedLimit
               ? inCart
-                ? "Já no carrinho"
-                : "Indisponível"
-              : "Adicionar ao Carrinho"}
+                ? store.t("already_in_cart_label")
+                : store.t("unavailable_label")
+              : store.text("add_to_cart_label", "add_to_cart_label")}
         </Button>
-        <p className="mt-2 text-[11px] text-forest-600">{AVAILABILITY_DISCLAIMER}</p>
+        <p className="mt-2 text-[11px] text-forest-600">
+          {store.text("inventory_notice", "availability_disclaimer")}
+        </p>
       </div>
     </div>
   );

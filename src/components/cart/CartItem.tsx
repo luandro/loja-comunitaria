@@ -5,7 +5,8 @@ import { useProducts } from "@/hooks/use-products";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { InventoryBadge } from "@/components/InventoryBadge";
-import { AVAILABILITY_DISCLAIMER, getInventoryStatus } from "@/lib/inventory";
+import { getInventoryStatus } from "@/lib/inventory";
+import { useStore } from "@/hooks/use-store";
 
 interface CartItemProps {
   item: CartItemType;
@@ -15,6 +16,7 @@ interface CartItemProps {
 
 export const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) => {
   const { products } = useProducts();
+  const store = useStore();
 
   const product = useMemo(
     () => products.find((p) => p.id === item.id),
@@ -71,10 +73,12 @@ export const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) =>
             <h3 className="text-lg font-semibold text-forest-900">{item.name}</h3>
             {status && <InventoryBadge status={status} />}
           </div>
-          <p className="text-terra-600">R$ {item.price.toFixed(2)}</p>
+          <p className="text-terra-600">{store.formatPrice(item.price)}</p>
 
           {status && <p className="text-sm text-forest-600">{status.message}</p>}
-          <p className="text-xs text-forest-600">{AVAILABILITY_DISCLAIMER}</p>
+          <p className="text-xs text-forest-600">
+            {store.text("inventory_notice", "availability_disclaimer")}
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <button

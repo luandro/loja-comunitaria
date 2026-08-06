@@ -8,13 +8,15 @@ import type { Product } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InventoryBadge } from "@/components/InventoryBadge";
-import { AVAILABILITY_DISCLAIMER, getInventoryStatus } from "@/lib/inventory";
+import { getInventoryStatus } from "@/lib/inventory";
+import { useStore } from "@/hooks/use-store";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { addItem, cart } = useCart();
+  const store = useStore();
   const { getProduct, products, isLoading: productsLoading } = useProducts();
 
   const [quantity, setQuantity] = useState(1);
@@ -169,13 +171,13 @@ const ProductDetails = () => {
               {product.name}
             </h1>
             <p className="text-2xl text-terra-600 font-semibold">
-              R$ {product.price.toFixed(2)}
+              {store.formatPrice(product.price)}
             </p>
 
             {status && (
               <div className="space-y-1">
                 <p className="text-sm text-forest-700">{status.message}</p>
-                <p className="text-sm text-forest-600">{AVAILABILITY_DISCLAIMER}</p>
+                <p className="text-sm text-forest-600">{store.text("inventory_notice", "availability_disclaimer")}</p>
               </div>
             )}
 
@@ -227,8 +229,8 @@ const ProductDetails = () => {
               variant={isOutOfStock ? "outline" : "default"}
             >
               {isOutOfStock
-                ? (isUnique && existingCartItem ? 'Já no carrinho' : 'Produto esgotado')
-                : 'Adicionar ao Carrinho'}
+                ? (isUnique && existingCartItem ? store.t('already_in_cart_label') : store.t('sold_out_label'))
+                : store.text('add_to_cart_label', 'add_to_cart_label')}
             </Button>
 
             {status?.type === "unique" && !isSoldOut && (
