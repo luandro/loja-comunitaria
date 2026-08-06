@@ -72,8 +72,13 @@ export const generateReferenceCode = (): string => {
   return `LC-${timestamp}${random}`;
 };
 
-const brl = (value: number) =>
-  value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const money = (value: number, locale = 'pt-BR', currency = 'BRL') => {
+  try {
+    return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(value);
+  } catch {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  }
+};
 
 const productUrl = (id: number) => {
   if (typeof window === 'undefined') return '';
@@ -128,8 +133,11 @@ export function buildOrderRequestMessage(params: {
   reference: string;
   data: OrderRequestData;
   storeName?: string;
+  locale?: string;
+  currency?: string;
 }): string {
-  const { cart, subtotal, reference, data, storeName } = params;
+  const { cart, subtotal, reference, data, storeName, locale, currency } = params;
+  const brl = (value: number) => money(value, locale, currency);
 
   const lines: string[] = [];
   lines.push(

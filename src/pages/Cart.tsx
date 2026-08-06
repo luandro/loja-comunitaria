@@ -39,9 +39,11 @@ const Cart = () => {
       reference,
       data: form,
       storeName: store.storeName,
+      locale: store.locale,
+      currency: store.currency,
     });
     return getWhatsAppCustomLink(message, whatsappNumber);
-  }, [cart, total, reference, form, store.storeName, whatsappNumber]);
+  }, [cart, total, reference, form, store.storeName, store.locale, store.currency, whatsappNumber]);
 
   if (isEmpty) return <EmptyCart />;
 
