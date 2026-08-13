@@ -1,5 +1,6 @@
 import { getEnv } from './env';
 import { INVENTORY_TYPES, type InventoryType } from './inventory';
+import { slugify } from './communities';
 
 export interface Product {
   id: number;
@@ -21,8 +22,15 @@ export interface Product {
   slug?: string;
   materials?: string;
   peopleOrCommunity?: string;
+  /** Slug of the community profile (Comunidades tab), when available. */
+  communitySlug?: string;
+  makerName?: string;
   originLocation?: string;
+  technique?: string;
   dimensions?: string;
+  careInstructions?: string;
+  revenueInformation?: string;
+  shippingNotes?: string;
   weightGrams?: number;
   sortOrder?: number;
   seoTitle?: string;
@@ -124,6 +132,14 @@ function rowToProduct(row: Record<string, unknown>): Product | null {
   const productionTime =
     pick(row, 'production_time', 'prazo_producao', 'prazo_de_producao') || undefined;
 
+  const peopleOrCommunity = pick(
+    row,
+    'people_or_community',
+    'povo_ou_comunidade',
+    'comunidade',
+    'povo',
+  );
+
   const typeRaw = pick(row, 'inventory_type', 'tipo_estoque')
     .toLowerCase()
     .replace(/[\s-]+/g, '_');
@@ -147,9 +163,15 @@ function rowToProduct(row: Record<string, unknown>): Product | null {
       stockQuantity === undefined ? (productionTime ? 'made_to_order' : 'available') : 'limited';
   }
 
-  const galleryRaw = pick(row, 'gallery_image_urls', 'urls_galeria_imagens');
+  const galleryRaw = pick(
+    row,
+    'gallery_image_urls',
+    'urls_galeria_imagens',
+    'galeria',
+    'imagens_galeria',
+  );
   const galleryImages = galleryRaw
-    ? galleryRaw.split(',').map((s) => s.trim()).filter(Boolean)
+    ? galleryRaw.split(/[,|;\n]/).map((s) => s.trim()).filter(Boolean)
     : undefined;
 
   const longDescription =
@@ -187,9 +209,23 @@ function rowToProduct(row: Record<string, unknown>): Product | null {
     galleryImages,
     slug: pick(row, 'slug') || undefined,
     materials: pick(row, 'materials', 'materiais') || undefined,
-    peopleOrCommunity: pick(row, 'people_or_community', 'povo_ou_comunidade') || undefined,
-    originLocation: pick(row, 'origin_location', 'local_de_origem') || undefined,
-    dimensions: pick(row, 'dimensions', 'dimensoes') || undefined,
+    peopleOrCommunity: peopleOrCommunity || undefined,
+    communitySlug:
+      pick(row, 'community_slug', 'slug_comunidade') ||
+      (peopleOrCommunity ? slugify(peopleOrCommunity) : undefined) ||
+      undefined,
+    makerName: pick(row, 'maker_name', 'nome_artesao', 'nome_artesa', 'artesao', 'artesa') || undefined,
+    originLocation:
+      pick(row, 'origin_location', 'local_de_origem', 'origem', 'localizacao') || undefined,
+    technique: pick(row, 'technique', 'tecnica') || undefined,
+    dimensions: pick(row, 'dimensions', 'dimensoes', 'medidas') || undefined,
+    careInstructions:
+      pick(row, 'care_instructions', 'instrucoes_de_cuidado', 'cuidados') || undefined,
+    revenueInformation:
+      pick(row, 'revenue_information', 'informacoes_de_renda', 'destino_da_renda', 'renda') ||
+      undefined,
+    shippingNotes:
+      pick(row, 'shipping_notes', 'observacoes_envio', 'notas_envio', 'envio') || undefined,
     weightGrams: Number.isFinite(weightGrams as number) ? weightGrams : undefined,
     sortOrder: Number.isFinite(sortOrder as number) ? sortOrder : undefined,
     seoTitle: pick(row, 'seo_title', 'titulo_seo') || undefined,
