@@ -46,6 +46,24 @@ const ptBR = {
   increase_quantity: 'Aumentar quantidade',
   remove_item: 'Remover item',
 
+  // Product detail / provenance labels
+  label_community: 'Povo ou comunidade',
+  label_maker: 'Quem fez',
+  label_origin: 'Local de origem',
+  label_materials: 'Materiais',
+  label_technique: 'Técnica',
+  label_dimensions: 'Dimensões',
+  label_care: 'Cuidados',
+  label_production_time: 'Tempo de produção',
+  label_shipping: 'Envio',
+  label_revenue: 'Destino da renda',
+  label_category: 'Categoria',
+  product_gallery_label: 'Galeria de imagens do produto',
+  community_page_products_title: 'Produtos desta comunidade',
+  community_not_found: 'Comunidade não encontrada',
+  community_links_title: 'Contato e redes',
+  view_community: 'Ver comunidade',
+
   // About
   about_title_fallback: 'Sobre a loja',
   about_button_fallback: 'Conheça a loja',
@@ -152,6 +170,22 @@ const en: Partial<Record<TranslationKey, string>> = {
   business_hours: 'Opening hours',
   send_message: 'Send message',
   rights_reserved: 'All rights reserved.',
+  label_community: 'People or community',
+  label_maker: 'Made by',
+  label_origin: 'Place of origin',
+  label_materials: 'Materials',
+  label_technique: 'Technique',
+  label_dimensions: 'Dimensions',
+  label_care: 'Care',
+  label_production_time: 'Production time',
+  label_shipping: 'Shipping',
+  label_revenue: 'Where the revenue goes',
+  label_category: 'Category',
+  product_gallery_label: 'Product image gallery',
+  community_page_products_title: 'Products from this community',
+  community_not_found: 'Community not found',
+  community_links_title: 'Contact and links',
+  view_community: 'View community',
 };
 
 const DICTIONARIES: Record<LanguageCode, Partial<Record<TranslationKey, string>>> = {
