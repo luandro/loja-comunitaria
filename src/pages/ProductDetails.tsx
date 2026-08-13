@@ -310,12 +310,6 @@ const ProductDetails = () => {
                 : store.text('add_to_cart_label', 'add_to_cart_label')}
             </Button>
 
-            {status?.type === "unique" && !isSoldOut && (
-              <p className="text-sm text-amber-600 italic">
-                Peça única — feita artesanalmente, com uma só unidade reportada pela loja.
-              </p>
-            )}
-
             {status?.type === "made_to_order" && (
               <p className="text-sm text-forest-700 italic">{status.message}</p>
             )}
