@@ -17,6 +17,7 @@ import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import CommunityPage from "./pages/Community";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
                   <Route path="/carrinho" element={<Cart />} />
                   <Route path="/sobre" element={<About />} />
                   <Route path="/contato" element={<Contact />} />
+                  <Route path="/comunidade/:slug" element={<CommunityPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>

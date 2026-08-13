@@ -15,6 +15,8 @@ interface EnvVars {
   GOOGLE_SPREADSHEET_ID: string;
   GOOGLE_SPREADSHEET_TAB: string;
   GOOGLE_SPREADSHEET_CONTENT_TAB: string;
+  /** Optional Comunidades tab (community profiles). */
+  GOOGLE_SPREADSHEET_COMMUNITIES_TAB: string;
 }
 
 /** Only structural defaults are allowed here — never store-specific content. */
@@ -24,6 +26,7 @@ const defaults: EnvVars = {
   GOOGLE_SPREADSHEET_ID: '',
   GOOGLE_SPREADSHEET_TAB: 'Produtos',
   GOOGLE_SPREADSHEET_CONTENT_TAB: 'Conteudo_Site',
+  GOOGLE_SPREADSHEET_COMMUNITIES_TAB: 'Comunidades',
 };
 
 export function getEnv<K extends keyof EnvVars>(key: K): string {
