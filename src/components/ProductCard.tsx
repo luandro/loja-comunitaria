@@ -15,6 +15,9 @@ interface ProductCardProps {
   inventoryType: InventoryType;
   stockQuantity?: number;
   productionTime?: string;
+  peopleOrCommunity?: string;
+  originLocation?: string;
+  communitySlug?: string;
 }
 
 const ProductCard = ({
@@ -26,6 +29,8 @@ const ProductCard = ({
   inventoryType,
   stockQuantity,
   productionTime,
+  peopleOrCommunity,
+  originLocation,
 }: ProductCardProps) => {
   const { addItem, cart } = useCart();
   const store = useStore();
@@ -72,6 +77,13 @@ const ProductCard = ({
         </div>
         <div className="p-4">
           <h3 className="text-lg font-semibold text-forest-900 mb-1">{name}</h3>
+          {(peopleOrCommunity || originLocation) && (
+            <p className="text-xs text-forest-600 mb-2">
+              {peopleOrCommunity}
+              {peopleOrCommunity && originLocation ? " · " : ""}
+              {originLocation}
+            </p>
+          )}
           <p className="text-sm text-forest-600 mb-2 line-clamp-2">{description}</p>
 
           <div className="flex justify-between items-center gap-2">
