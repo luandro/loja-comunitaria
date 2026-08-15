@@ -1,20 +1,66 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
+import CatalogFilters from "../components/CatalogFilters";
 import { useProducts } from "@/hooks/use-products";
 import { useStore } from "@/hooks/use-store";
+import {
+  DEFAULT_FILTERS,
+  INVENTORY_FILTERS,
+  SORT_OPTIONS,
+  buildSearchIndex,
+  facetValues,
+  filterProducts,
+  inventoryOptions,
+  type CatalogFilterState,
+  type InventoryFilter,
+  type SortOption,
+} from "@/lib/catalog";
 
 const Products = () => {
   const { products, isLoading, error } = useProducts();
   const store = useStore();
-  const [query, setQuery] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return products;
-    return products.filter((p) =>
-      [p.name, p.description].filter(Boolean).join(" ").toLowerCase().includes(q),
-    );
-  }, [products, query]);
+  const filters: CatalogFilterState = useMemo(() => {
+    const inventory = searchParams.get("estoque") as InventoryFilter | null;
+    const sort = searchParams.get("ordem") as SortOption | null;
+    return {
+      query: searchParams.get("q") ?? "",
+      category: searchParams.get("categoria") ?? "",
+      community: searchParams.get("comunidade") ?? "",
+      inventory: inventory && INVENTORY_FILTERS.includes(inventory) ? inventory : "all",
+      sort: sort && SORT_OPTIONS.includes(sort) ? sort : "featured",
+    };
+  }, [searchParams]);
+
+  const updateFilters = useCallback(
+    (patch: Partial<CatalogFilterState>) => {
+      const next = { ...filters, ...patch };
+      const params = new URLSearchParams();
+      if (next.query) params.set("q", next.query);
+      if (next.category) params.set("categoria", next.category);
+      if (next.community) params.set("comunidade", next.community);
+      if (next.inventory !== DEFAULT_FILTERS.inventory) params.set("estoque", next.inventory);
+      if (next.sort !== DEFAULT_FILTERS.sort) params.set("ordem", next.sort);
+      setSearchParams(params, { replace: true });
+    },
+    [filters, setSearchParams],
+  );
+
+  const clearFilters = useCallback(() => {
+    setSearchParams(new URLSearchParams(), { replace: true });
+  }, [setSearchParams]);
+
+  const searchIndex = useMemo(() => buildSearchIndex(products), [products]);
+  const categories = useMemo(() => facetValues(products, "category"), [products]);
+  const communities = useMemo(() => facetValues(products, "peopleOrCommunity"), [products]);
+  const inventoryChoices = useMemo(() => inventoryOptions(products), [products]);
+
+  const filtered = useMemo(
+    () => filterProducts(products, filters, searchIndex),
+    [products, filters, searchIndex],
+  );
 
   return (
     <div className="bg-sand-50 py-16 animate-fadeIn">
@@ -24,19 +70,16 @@ const Products = () => {
         </h1>
 
         {products.length > 0 && (
-          <div className="max-w-md mx-auto mb-10">
-            <label htmlFor="product-search" className="sr-only">
-              {store.t("search_label")}
-            </label>
-            <input
-              id="product-search"
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={store.text("search_placeholder", "search_placeholder")}
-              className="w-full px-4 py-2 border border-sand-200 rounded-md focus:outline-none focus:ring-2 focus:ring-terra-500"
-            />
-          </div>
+          <CatalogFilters
+            store={store}
+            filters={filters}
+            onChange={updateFilters}
+            onClear={clearFilters}
+            categories={categories}
+            communities={communities}
+            inventoryChoices={inventoryChoices}
+            resultCount={filtered.length}
+          />
         )}
 
         {isLoading && (
