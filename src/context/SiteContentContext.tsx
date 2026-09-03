@@ -1,19 +1,36 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   DEFAULT_SITE_CONTENT,
   hexToHslTriplet,
   loadSiteContent,
   type SiteContent,
+  type SiteContentStatus,
 } from '@/lib/site-content';
 
 interface SiteContentContextType {
   content: SiteContent;
   isLoading: boolean;
+  /** Connection status of the Conteudo_Site tab (for /verificar-loja). */
+  status: SiteContentStatus;
+  error: string | null;
+  keyCount: number;
+  reload: () => void;
 }
 
 const SiteContentContext = createContext<SiteContentContextType>({
   content: DEFAULT_SITE_CONTENT,
   isLoading: true,
+  status: 'not-configured',
+  error: null,
+  keyCount: 0,
+  reload: () => undefined,
 });
 
 // Session cache for site content. While editing the spreadsheet, lower
@@ -35,26 +52,37 @@ export const SiteContentProvider = ({ children }: { children: ReactNode }) => {
     return DEFAULT_SITE_CONTENT;
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [status, setStatus] = useState<SiteContentStatus>('not-configured');
+  const [error, setError] = useState<string | null>(null);
+  const [keyCount, setKeyCount] = useState(0);
+  const [reloadToken, setReloadToken] = useState(0);
+  const reload = useCallback(() => setReloadToken((n) => n + 1), []);
 
   useEffect(() => {
     let cancelled = false;
-    loadSiteContent().then((data) => {
+    setIsLoading(true);
+    loadSiteContent().then((result) => {
       if (cancelled) return;
-      setContent(data);
+      setContent(result.content);
+      setStatus(result.status);
+      setError(result.error);
+      setKeyCount(result.keyCount);
       setIsLoading(false);
-      try {
-        sessionStorage.setItem(
-          CACHE_KEY,
-          JSON.stringify({ content: data, timestamp: Date.now() }),
-        );
-      } catch {
-        /* ignore */
+      if (result.status === 'ok') {
+        try {
+          sessionStorage.setItem(
+            CACHE_KEY,
+            JSON.stringify({ content: result.content, timestamp: Date.now() }),
+          );
+        } catch {
+          /* ignore */
+        }
       }
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadToken]);
 
   // Sync document title + meta description from the sheet
   useEffect(() => {
@@ -112,7 +140,7 @@ export const SiteContentProvider = ({ children }: { children: ReactNode }) => {
   ]);
 
   return (
-    <SiteContentContext.Provider value={{ content, isLoading }}>
+    <SiteContentContext.Provider value={{ content, isLoading, status, error, keyCount, reload }}>
       {children}
     </SiteContentContext.Provider>
   );

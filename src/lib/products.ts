@@ -46,7 +46,7 @@ const truthy = (v: unknown) => {
 };
 
 /** Pick the first non-empty value across alias keys. */
-const pick = (row: Record<string, unknown>, ...keys: string[]): string => {
+export const pick = (row: Record<string, unknown>, ...keys: string[]): string => {
   for (const k of keys) {
     const v = row[k];
     if (v !== undefined && v !== null && String(v).trim() !== '') {
@@ -105,7 +105,7 @@ export function parseCSV(csv: string): Product[] {
  * Convert a raw sheet/CSV row into a normalized Product, or null if invalid.
  * Supports both English (name, price, image_url) and pt-BR (nome, preco, url_imagem) headers.
  */
-function rowToProduct(row: Record<string, unknown>): Product | null {
+export function rowToProduct(row: Record<string, unknown>): Product | null {
   const idStr = pick(row, 'id');
   const id = Number.parseInt(idStr, 10);
   const name = pick(row, 'name', 'nome');
@@ -234,7 +234,7 @@ function rowToProduct(row: Record<string, unknown>): Product | null {
 }
 
 /** Filter inactive products and sort by sort_order/ordem then name. */
-function finalize(products: Product[]): Product[] {
+export function finalize(products: Product[]): Product[] {
   return products
     .filter((p) => p.active !== false)
     .sort((a, b) => {

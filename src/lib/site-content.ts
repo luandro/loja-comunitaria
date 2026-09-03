@@ -268,11 +268,20 @@ const KEY_ALIASES: Record<string, string> = {
   mensagem_erro_cep: 'cep_lookup_error_message',
 };
 
+export type SiteContentStatus = 'ok' | 'error' | 'not-configured';
+
+export interface SiteContentResult {
+  content: SiteContent;
+  status: SiteContentStatus;
+  error: string | null;
+  keyCount: number;
+}
+
 /**
  * Fetch the Conteudo_Site (or Site_Content) sheet as a key/value map.
  * Supports both English (`key`/`value`) and pt-BR (`chave`/`valor`) column names.
  */
-export async function loadSiteContent(): Promise<SiteContent> {
+export async function loadSiteContent(): Promise<SiteContentResult> {
   const spreadsheetId = import.meta.env.VITE_GOOGLE_SPREADSHEET_ID as string | undefined;
   const contentTab =
     (import.meta.env.VITE_GOOGLE_SPREADSHEET_CONTENT_TAB as string | undefined) ||
@@ -280,7 +289,12 @@ export async function loadSiteContent(): Promise<SiteContent> {
 
   if (!spreadsheetId) {
     console.warn('[SITE_CONTENT] No spreadsheet ID configured, using defaults');
-    return { ...DEFAULT_SITE_CONTENT };
+    return {
+      content: { ...DEFAULT_SITE_CONTENT },
+      status: 'not-configured',
+      error: null,
+      keyCount: 0,
+    };
   }
 
   try {
@@ -294,14 +308,12 @@ export async function loadSiteContent(): Promise<SiteContent> {
       const hasKey = headers.some((h) => ['key', 'chave'].includes(h));
       const hasValue = headers.some((h) => ['value', 'valor'].includes(h));
       if (!hasKey || !hasValue) {
-        console.warn(
-          '[SITE_CONTENT] Sheet is missing required key/value (or chave/valor) columns. Found:',
-          headers,
-        );
+        throw new Error('A aba de conteúdo não tem as colunas "chave" e "valor".');
       }
     }
 
     const merged: SiteContent = { ...DEFAULT_SITE_CONTENT };
+    let keyCount = 0;
     for (const row of rows) {
       const rawKey = (row.key ?? row.Key ?? row.chave ?? row.Chave ?? '')
         .toString()
@@ -310,12 +322,20 @@ export async function loadSiteContent(): Promise<SiteContent> {
       if (!rawKey) continue;
       const internalKey = KEY_ALIASES[rawKey] ?? rawKey;
       // Don't clobber a default with an empty string
-      if (rawValue.trim() !== '') merged[internalKey] = rawValue;
+      if (rawValue.trim() !== '') {
+        merged[internalKey] = rawValue;
+        keyCount += 1;
+      }
     }
-    return merged;
+    return { content: merged, status: 'ok', error: null, keyCount };
   } catch (err) {
     console.error('[SITE_CONTENT] Failed to load, using defaults:', err);
-    return { ...DEFAULT_SITE_CONTENT };
+    return {
+      content: { ...DEFAULT_SITE_CONTENT },
+      status: 'error',
+      error: err instanceof Error ? err.message : String(err),
+      keyCount: 0,
+    };
   }
 }
 

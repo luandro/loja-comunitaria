@@ -146,6 +146,18 @@ const ptBR = {
   diag_missing_contact:
     'Nenhum canal de contato configurado (WhatsApp, e-mail ou endereço).',
 
+  // Catalog data source / freshness
+  catalog_stale_notice:
+    'Estamos exibindo a última versão disponível do catálogo. Algumas informações podem ter sido atualizadas pela comunidade.',
+  catalog_refresh: 'Atualizar catálogo',
+  catalog_refreshing: 'Atualizando…',
+  catalog_source_spreadsheet: 'Planilha',
+  catalog_source_cache: 'Cópia salva no navegador',
+  catalog_source_csv: 'Arquivo interno do site',
+  catalog_source_none: 'Sem dados',
+  catalog_last_update: 'Última atualização',
+  store_check_link: 'Verificar loja',
+
   // Footer
   rights_reserved: 'Todos os direitos reservados.',
 } as const;
