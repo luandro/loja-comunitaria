@@ -234,7 +234,7 @@ export function rowToProduct(row: Record<string, unknown>): Product | null {
 }
 
 /** Filter inactive products and sort by sort_order/ordem then name. */
-function finalize(products: Product[]): Product[] {
+export function finalize(products: Product[]): Product[] {
   return products
     .filter((p) => p.active !== false)
     .sort((a, b) => {
