@@ -23,6 +23,18 @@ export interface StoreContact {
   hasAnyChannel: boolean;
 }
 
+export interface StorePix {
+  /** Pix is enabled AND fully configured (safe to show). */
+  available: boolean;
+  /** checkout_mode === 'pix_immediate' and Pix is available. */
+  immediate: boolean;
+  key: string;
+  recipientName: string;
+  recipientCity: string;
+  instruction: string;
+  confirmationNotice: string;
+}
+
 export interface StoreDiagnostic {
   key: string;
   message: string;
@@ -43,7 +55,8 @@ export interface Store {
   tagline: string;
   formatPrice: (value: number) => string;
   contact: StoreContact;
-  checkoutMode: string;
+  checkoutMode: 'whatsapp_first' | 'pix_immediate';
+  pix: StorePix;
   pickupAvailable: boolean;
   diagnostics: StoreDiagnostic[];
 }
@@ -92,6 +105,25 @@ export function createStore(content: SiteContent): Store {
   };
   contact.hasAnyChannel = !!(contact.hasWhatsApp || contact.email || contact.location);
 
+  const checkoutModeRaw = (optional('checkout_mode') || 'whatsapp_first').toLowerCase();
+  const checkoutMode: 'whatsapp_first' | 'pix_immediate' =
+    checkoutModeRaw.includes('pix') ? 'pix_immediate' : 'whatsapp_first';
+
+  const pixKey = optional('pix_key');
+  const pixRecipientName = optional('pix_recipient_name');
+  const pixRecipientCity = optional('pix_recipient_city');
+  const pixEnabled = truthy(optional('pix_enabled') || 'false');
+  const pixAvailable = pixEnabled && !!pixKey && !!pixRecipientName && !!pixRecipientCity;
+  const pix: StorePix = {
+    available: pixAvailable,
+    immediate: pixAvailable && checkoutMode === 'pix_immediate',
+    key: pixKey,
+    recipientName: pixRecipientName,
+    recipientCity: pixRecipientCity,
+    instruction: optional('pix_instruction'),
+    confirmationNotice: optional('pix_confirmation_notice'),
+  };
+
   const diagnostics: StoreDiagnostic[] = [];
   if (!import.meta.env.VITE_GOOGLE_SPREADSHEET_ID) {
     diagnostics.push({ key: 'spreadsheet', message: t('diag_missing_spreadsheet') });
@@ -118,7 +150,8 @@ export function createStore(content: SiteContent): Store {
     tagline,
     formatPrice,
     contact,
-    checkoutMode: optional('checkout_mode') || 'whatsapp',
+    checkoutMode,
+    pix,
     pickupAvailable: truthy(optional('pickup_available') || 'true'),
     diagnostics,
   };

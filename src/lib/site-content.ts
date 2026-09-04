@@ -84,7 +84,12 @@ export interface SiteContent {
   locale: string;
 
   // Payment (only ever shown when explicitly configured)
+  pix_enabled: string;
   pix_key: string;
+  pix_recipient_name: string;
+  pix_recipient_city: string;
+  pix_instruction: string;
+  pix_confirmation_notice: string;
   pix_qr_image_url: string;
 
   // CEP lookup
@@ -147,7 +152,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
 
   order_notice: '',
   inventory_notice: '',
-  checkout_mode: 'whatsapp',
+  checkout_mode: 'whatsapp_first',
   checkout_instructions: '',
   shipping_policy: '',
   pickup_available: '',
@@ -168,7 +173,12 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   currency: 'BRL',
   locale: 'pt-BR',
 
+  pix_enabled: '',
   pix_key: '',
+  pix_recipient_name: '',
+  pix_recipient_city: '',
+  pix_instruction: '',
+  pix_confirmation_notice: '',
   pix_qr_image_url: '',
 
   cep_lookup_enabled: 'true',
@@ -257,7 +267,13 @@ const KEY_ALIASES: Record<string, string> = {
   moeda: 'currency',
   local: 'locale',
   // Payment
+  pix_ativo: 'pix_enabled',
+  ativar_pix: 'pix_enabled',
   chave_pix: 'pix_key',
+  nome_recebedor_pix: 'pix_recipient_name',
+  cidade_recebedor_pix: 'pix_recipient_city',
+  instrucao_pix: 'pix_instruction',
+  aviso_confirmacao_pix: 'pix_confirmation_notice',
   url_qr_pix: 'pix_qr_image_url',
   // CEP lookup
   consulta_cep_ativa: 'cep_lookup_enabled',
