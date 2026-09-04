@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import CatalogFilters from "../components/CatalogFilters";
+import CatalogStatusNotice from "../components/CatalogStatusNotice";
 import { useProducts } from "@/hooks/use-products";
 import { useStore } from "@/hooks/use-store";
 import {
@@ -68,6 +69,8 @@ const Products = () => {
         <h1 className="text-4xl font-marcellus text-forest-900 text-center mb-8">
           {store.text("products_page_title", "products_page_title")}
         </h1>
+
+        <CatalogStatusNotice />
 
         {products.length > 0 && (
           <CatalogFilters
