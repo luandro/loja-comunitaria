@@ -109,6 +109,21 @@ const ptBR = {
   inventory_notice_fallback:
     'Seu carrinho não reserva os produtos. A loja confirmará disponibilidade, prazo e frete.',
   availability_disclaimer: 'Disponibilidade sujeita à confirmação.',
+
+  // Pix (optional store mode)
+  pix_title: 'Pagamento por Pix (opcional)',
+  pix_warning:
+    'Este pagamento não reserva nem confirma automaticamente os produtos. Envie o comprovante pelo WhatsApp e aguarde a confirmação da loja.',
+  pix_amount: 'Valor',
+  pix_recipient: 'Recebedor',
+  pix_reference: 'Referência',
+  pix_code_label: 'Código Pix copia e cola',
+  pix_copy: 'Copiar código Pix',
+  pix_copied: 'Código Pix copiado',
+  pix_copy_failed: 'Não foi possível copiar. Selecione o código manualmente.',
+  pix_qr_alt: 'QR Code Pix para pagamento',
+  pix_send_receipt: 'Enviar comprovante pelo WhatsApp',
+  pix_generating: 'Gerando QR Code…',
   shipping_pending_notice: 'Frete e valor final serão informados pela loja no WhatsApp.',
   order_form_incomplete:
     'Preencha nome, cidade, estado e marque a confirmação para liberar o envio.',
