@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useCart } from '@/hooks/use-cart';
 import { useSiteContent } from '@/context/SiteContentContext';
 import { useStore } from '@/hooks/use-store';
-import { CartItem, EmptyCart, OrderRequestForm, OrderSummary } from '@/components/cart';
+import { CartItem, EmptyCart, OrderRequestForm, OrderSummary, PixPanel } from '@/components/cart';
 import { getWhatsAppCustomLink } from '@/lib/whatsapp';
 import {
   buildOrderRequestMessage,
@@ -97,6 +97,12 @@ const Cart = () => {
             onClearCart={clearCart}
           />
         </div>
+
+        {store.pix.immediate && (
+          <div className="mt-8 max-w-xl">
+            <PixPanel subtotal={total} reference={reference} />
+          </div>
+        )}
       </div>
     </div>
   );
