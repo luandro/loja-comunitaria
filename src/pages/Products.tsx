@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import CatalogFilters from "../components/CatalogFilters";
+import CatalogStatusNotice from "../components/CatalogStatusNotice";
 import { useProducts } from "@/hooks/use-products";
 import { useStore } from "@/hooks/use-store";
 import {
