@@ -70,6 +70,8 @@ const Products = () => {
           {store.text("products_page_title", "products_page_title")}
         </h1>
 
+        <CatalogStatusNotice />
+
         {products.length > 0 && (
           <CatalogFilters
             store={store}
