@@ -1,12 +1,15 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Marcellus&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    /* System font stacks — no remote font downloads, instant first paint. */
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+      "Noto Sans", Arial, sans-serif;
+    --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua",
+      Georgia, "Times New Roman", serif;
+
     --background: 38 33% 97%;
     --foreground: 20 45% 12%;
     --card: 38 33% 97%;
@@ -35,11 +38,42 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-body);
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Marcellus', serif;
+  h1, h2, h3, h4, h5, h6, .font-marcellus {
+    font-family: var(--font-display);
+    letter-spacing: 0.01em;
+  }
+
+  /* Visible, consistent keyboard focus on every interactive element. */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background rounded-sm;
+  }
+
+  /* Comfortable touch targets on small screens. */
+  @media (pointer: coarse) {
+    button,
+    a[href],
+    select,
+    [role="button"] {
+      min-height: 44px;
+    }
+
+    button,
+    [role="button"] {
+      min-width: 44px;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
   }
 }
 
@@ -49,7 +83,7 @@
   }
 
   .btn {
-    @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+    @apply inline-flex items-center justify-center px-6 py-3 min-h-[44px] text-base font-medium transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
   }
 
   .btn-primary {
@@ -71,6 +105,24 @@
   .section-title {
     @apply text-2xl font-bold text-forest-800 mb-4;
   }
+
+  /* Skeleton placeholder: pure CSS, no JS, no layout shift. */
+  .skeleton-block {
+    background-color: hsl(var(--muted));
+    background-image: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(38 20% 90%) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeletonShimmer 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes skeletonShimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
 }
 
 /* Animations */
@@ -98,6 +150,28 @@
   transition: transform 0.2s ease-in-out;
 }
 
-.product-card:hover {
-  transform: translateY(-4px);
+@media (hover: hover) {
+  .product-card:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* Respect the visitor's motion preference and save battery on old phones. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .product-card:hover {
+    transform: none;
+  }
+
+  .skeleton-block {
+    animation: none;
+  }
 }

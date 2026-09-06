@@ -172,6 +172,13 @@ const ptBR = {
   catalog_source_none: 'Sem dados',
   catalog_last_update: 'Última atualização',
   store_check_link: 'Verificar loja',
+  catalog_retry: 'Tentar novamente',
+  catalog_loading: 'Carregando produtos…',
+  offline_notice:
+    'Você está sem conexão. Mostrando o catálogo salvo no seu aparelho; pedidos pelo WhatsApp precisam de internet.',
+  offline_action_blocked: 'Esta ação precisa de conexão com a internet.',
+
+
 
   // Footer
   rights_reserved: 'Todos os direitos reservados.',
@@ -259,6 +266,12 @@ const en: Partial<Record<TranslationKey, string>> = {
   community_not_found: 'Community not found',
   community_links_title: 'Contact and links',
   view_community: 'View community',
+  catalog_retry: 'Try again',
+  catalog_loading: 'Loading products…',
+  offline_notice:
+    'You are offline. Showing the catalog saved on your device; WhatsApp orders need a connection.',
+  offline_action_blocked: 'This action needs an internet connection.',
+
 };
 
 const DICTIONARIES: Record<LanguageCode, Partial<Record<TranslationKey, string>>> = {

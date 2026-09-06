@@ -1,10 +1,14 @@
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
+import { RefreshCw } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import CatalogFilters from "../components/CatalogFilters";
 import CatalogStatusNotice from "../components/CatalogStatusNotice";
+import ProductGridSkeleton from "../components/ProductGridSkeleton";
+import { Button } from "@/components/ui/button";
 import { useProducts } from "@/hooks/use-products";
 import { useStore } from "@/hooks/use-store";
+
 import {
   DEFAULT_FILTERS,
   INVENTORY_FILTERS,
@@ -85,17 +89,23 @@ const Products = () => {
           />
         )}
 
-        {isLoading && (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forest-700" />
-          </div>
+        {isLoading && products.length === 0 && (
+          <>
+            <p className="sr-only">{store.t("catalog_loading")}</p>
+            <ProductGridSkeleton />
+          </>
         )}
 
         {error && (
-          <div className="text-center py-8 text-red-600">
-            <p>{error}</p>
+          <div className="text-center py-8">
+            <p className="text-red-700 mb-4">{error}</p>
+            <Button variant="outline" onClick={() => refreshProducts()} disabled={isRefreshing}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+              {isRefreshing ? store.t("catalog_refreshing") : store.t("catalog_retry")}
+            </Button>
           </div>
         )}
+
 
         {!isLoading && !error && products.length === 0 && (
           <div className="text-center py-8">
