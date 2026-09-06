@@ -163,17 +163,18 @@ export function buildStoreCheckReport(input: BuildReportInput): StoreCheckReport
     hint: 'Preencha "numero_whatsapp" na aba Conteudo_Site.',
   });
 
-  const pixEnabled =
-    (store.checkoutMode ?? '').toLowerCase().includes('pix') ||
-    ['true', '1', 'sim'].includes((store.optional('pix_enabled') || '').toLowerCase());
-  if (pixEnabled) {
-    const hasPix = !!store.optional('pix_key');
+  if (store.optional('pix_enabled') || store.checkoutMode === 'pix_immediate') {
+    const missing = [
+      !store.pix.key && 'chave_pix',
+      !store.pix.recipientName && 'nome_recebedor_pix',
+      !store.pix.recipientCity && 'cidade_recebedor_pix',
+    ].filter(Boolean) as string[];
     items.push({
       key: 'pix',
       label: 'Configuração do Pix',
-      value: hasPix ? 'Configurada' : 'Ausente',
-      status: hasPix ? 'ok' : 'error',
-      hint: 'Preencha "chave_pix" na aba Conteudo_Site.',
+      value: store.pix.available ? 'Configurada' : `Incompleta (${missing.join(', ') || 'pix_enabled'})`,
+      status: store.pix.available ? 'ok' : 'error',
+      hint: 'Preencha chave_pix, nome_recebedor_pix e cidade_recebedor_pix na aba Conteudo_Site. Sem isso o Pix fica oculto.',
     });
   }
 
