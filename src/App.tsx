@@ -32,8 +32,10 @@ const App = () => (
         <BrowserRouter>
           <CartProvider>
             <div className="flex flex-col min-h-screen">
+              <OfflineNotice />
               <StoreDiagnostics />
               <Navbar />
+
               <main className="flex-grow">
                 <Routes>
                   <Route path="/" element={<Home />} />
