@@ -23,7 +23,7 @@ import {
 } from "@/lib/catalog";
 
 const Products = () => {
-  const { products, isLoading, error } = useProducts();
+  const { products, isLoading, error, isRefreshing, refreshProducts } = useProducts();
   const store = useStore();
   const [searchParams, setSearchParams] = useSearchParams();
 
