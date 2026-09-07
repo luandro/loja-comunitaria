@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { useProducts } from "@/hooks/use-products";
 import { useStore } from "@/hooks/use-store";
+import { StoreImage } from "@/components/StoreImage";
+import ProductGridSkeleton from "@/components/ProductGridSkeleton";
 
 const Home = () => {
   const { featuredProducts, isLoading, error } = useProducts();
