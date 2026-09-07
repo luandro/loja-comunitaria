@@ -5,6 +5,7 @@ import { useProducts } from "@/hooks/use-products";
 import { useCommunities } from "@/hooks/use-communities";
 import { useStore } from "@/hooks/use-store";
 import { slugify } from "@/lib/communities";
+import { StoreImage } from "@/components/StoreImage";
 
 const CommunityPage = () => {
   const { slug = "" } = useParams();
@@ -65,10 +66,10 @@ const CommunityPage = () => {
       <div className="container mx-auto">
         {community?.heroImage && (
           <div className="mb-8 rounded-lg overflow-hidden aspect-[16/9] md:aspect-[21/9]">
-            <img
+            <StoreImage
               src={community.heroImage}
               alt={title}
-              loading="lazy"
+              sizes="100vw"
               className="w-full h-full object-cover"
             />
           </div>

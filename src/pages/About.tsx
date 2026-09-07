@@ -1,4 +1,5 @@
 import { useStore } from "@/hooks/use-store";
+import { StoreImage } from "@/components/StoreImage";
 
 const About = () => {
   const store = useStore();
@@ -27,10 +28,10 @@ const About = () => {
           </div>
           {aboutImage && (
             <div className="aspect-square bg-sand-200 rounded-lg overflow-hidden">
-              <img
+              <StoreImage
                 src={aboutImage}
                 alt={store.storeName}
-                loading="lazy"
+                sizes="(min-width: 768px) 50vw, 100vw"
                 className="w-full h-full object-cover"
               />
             </div>
