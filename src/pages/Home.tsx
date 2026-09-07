@@ -6,7 +6,7 @@ import { StoreImage } from "@/components/StoreImage";
 import ProductGridSkeleton from "@/components/ProductGridSkeleton";
 
 const Home = () => {
-  const { featuredProducts, isLoading, error } = useProducts();
+  const { featuredProducts, isLoading, error, refreshProducts } = useProducts();
   const store = useStore();
   const heroImage = store.optional("hero_image_url");
   const aboutImage = store.optional("about_image_url");
@@ -43,15 +43,14 @@ const Home = () => {
             {store.text("featured_products_title", "featured_products_title")}
           </h2>
 
-          {isLoading && (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forest-700" />
-            </div>
-          )}
+          {isLoading && featuredProducts.length === 0 && <ProductGridSkeleton count={3} />}
 
           {error && (
-            <div className="text-center py-8 text-red-600">
-              <p>{error}</p>
+            <div className="text-center py-8">
+              <p className="text-red-700 mb-4">{error}</p>
+              <button type="button" className="btn btn-secondary" onClick={() => refreshProducts()}>
+                {store.t("catalog_retry")}
+              </button>
             </div>
           )}
 
@@ -63,13 +62,14 @@ const Home = () => {
             </div>
           )}
 
-          {!isLoading && !error && featuredProducts.length > 0 && (
+          {!error && featuredProducts.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {featuredProducts.map((product) => (
                 <ProductCard key={product.id} {...product} />
               ))}
             </div>
           )}
+
 
           <div className="text-center mt-12">
             <Link to="/produtos" className="btn btn-secondary">
