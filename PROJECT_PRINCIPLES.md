@@ -85,3 +85,15 @@ O que a comunidade precisa saber:
 | `cep_lookup_success_message` / `mensagem_sucesso_cep` | Sucesso |
 | `cep_lookup_partial_message` / `mensagem_parcial_cep` | Resultado parcial |
 | `cep_lookup_error_message` / `mensagem_erro_cep` | Falha de rede/provedor |
+
+## Desempenho e acessibilidade
+
+- Nenhuma fonte remota: usamos pilhas de fontes do próprio sistema.
+- Imagens fora da primeira dobra usam `loading="lazy"` e `decoding="async"`
+  (componente `StoreImage`, com fallback quando a imagem falha).
+- Animações são curtas e desligadas para quem prefere movimento reduzido.
+- Alvos de toque com no mínimo 44px e foco visível em todos os controles.
+- Catálogo e carrinho persistem no navegador; um service worker permite navegar
+  offline no último catálogo carregado.
+- Imagens: miniaturas até ~150 KB, principais até ~500 KB, WebP, largura máx. 1.600 px,
+  enquadramento quadrado ou retrato consistente.
