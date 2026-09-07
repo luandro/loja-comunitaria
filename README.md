@@ -131,3 +131,27 @@ Remember to set the environment variables in your hosting platform for PIX payme
 ## I want to use a custom domain - is that possible?
 
 We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+
+## Imagens dos produtos (guia rápido)
+
+A loja é feita para funcionar em celulares simples e internet fraca. Ao subir fotos
+na planilha, siga estes limites:
+
+- **Miniaturas / imagens de lista:** até ~150 KB.
+- **Imagem principal do produto:** até ~500 KB.
+- **Formato preferido:** WebP (JPEG é aceitável; evite PNG para fotos).
+- **Largura máxima:** cerca de 1.600 px.
+- **Enquadramento:** use sempre o mesmo formato — quadrado (1:1) ou retrato (4:5) —
+  para o catálogo ficar alinhado.
+- Nomeie os arquivos sem acentos e use links diretos para a imagem.
+
+Se uma imagem não carregar, o site mostra automaticamente um espaço reservado em vez
+de quebrar a página.
+
+## Funcionamento offline
+
+O site guarda o último catálogo carregado no aparelho do visitante. Depois da primeira
+visita, é possível navegar pelo catálogo, ver produtos e montar o carrinho sem internet.
+Só é preciso conexão para abrir o WhatsApp ou links externos. Um aviso aparece no topo
+quando o aparelho está sem conexão. O site também pode ser instalado na tela inicial do
+celular.

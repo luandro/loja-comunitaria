@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { InventoryBadge } from "@/components/InventoryBadge";
 import { getInventoryStatus } from "@/lib/inventory";
 import { useStore } from "@/hooks/use-store";
+import { StoreImage } from "@/components/StoreImage";
 
 interface CartItemProps {
   item: CartItemType;
@@ -67,7 +68,7 @@ export const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) =>
       )}
 
       <div className="flex items-center gap-4">
-        <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded" />
+        <StoreImage src={item.image} alt={item.name} sizes="80px" className="w-20 h-20 object-cover rounded" />
         <div className="flex-grow">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="text-lg font-semibold text-forest-900">{item.name}</h3>

@@ -8,6 +8,7 @@ import type { Product } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InventoryBadge } from "@/components/InventoryBadge";
+import { StoreImage } from "@/components/StoreImage";
 import { getInventoryStatus } from "@/lib/inventory";
 import { useStore } from "@/hooks/use-store";
 import { MetaRow } from "@/components/ProductMeta";
@@ -178,9 +179,11 @@ const ProductDetails = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
             <div className="aspect-square bg-sand-100 rounded-lg overflow-hidden relative">
-              <img
+              <StoreImage
                 src={gallery[activeImage] ?? product.image}
                 alt={product.name}
+                priority
+                sizes="(min-width: 768px) 50vw, 100vw"
                 className="w-full h-full object-cover"
               />
               {status && <InventoryBadge status={status} className="absolute top-4 right-4" />}
@@ -200,10 +203,10 @@ const ProductDetails = () => {
                         i === activeImage ? "border-terra-600" : "border-sand-200"
                       }`}
                     >
-                      <img
+                      <StoreImage
                         src={src}
                         alt={`${product.name} ${i + 1}`}
-                        loading="lazy"
+                        sizes="64px"
                         className="h-full w-full object-cover"
                       />
                     </button>

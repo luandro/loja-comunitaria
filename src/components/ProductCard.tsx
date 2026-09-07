@@ -4,6 +4,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useStore } from "@/hooks/use-store";
 import { Button } from "@/components/ui/button";
 import { InventoryBadge } from "@/components/InventoryBadge";
+import { StoreImage } from "@/components/StoreImage";
 import { getInventoryStatus, type InventoryType } from "@/lib/inventory";
 
 interface ProductCardProps {
@@ -67,14 +68,15 @@ const ProductCard = ({
     >
       <Link to={`/produto/${id}`} className="block">
         <div className="aspect-square overflow-hidden relative">
-          <img
+          <StoreImage
             src={image}
             alt={name}
-            loading="lazy"
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           <InventoryBadge status={status} className="absolute top-2 right-2" />
         </div>
+
         <div className="p-4">
           <h3 className="text-lg font-semibold text-forest-900 mb-1">{name}</h3>
           {(peopleOrCommunity || originLocation) && (

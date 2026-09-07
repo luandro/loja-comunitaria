@@ -40,7 +40,7 @@ export const StoreImage = ({
       sizes={sizes}
       loading={priority ? "eager" : "lazy"}
       decoding={priority ? "sync" : "async"}
-      fetchPriority={priority ? "high" : "auto"}
+      {...({ fetchpriority: priority ? "high" : "auto" } as Record<string, string>)}
       onError={() => setFailed(true)}
       className={`${className} ${isFallback ? "bg-sand-100 object-contain p-6 opacity-70" : ""}`}
     />
