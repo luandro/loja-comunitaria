@@ -92,8 +92,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCart((prev) => {
       const item = prev.find((it) => it.id === id);
       if (item) pending.current = { key: 'cart_quantity_updated', name: item.name, quantity };
-      return
-      prev.map((it) => {
+      return prev.map((it) => {
         if (it.id !== id) return it;
         const capped =
           it.maxQuantity !== undefined ? Math.min(quantity, it.maxQuantity) : quantity;
