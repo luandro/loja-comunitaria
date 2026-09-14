@@ -180,6 +180,14 @@ const ptBR = {
 
 
 
+  // Accessibility
+  skip_to_content: 'Ir para o conteúdo principal',
+  cart_region_label: 'Atualizações do carrinho',
+  cart_item_added: '{name} adicionado ao carrinho. {count} itens no carrinho.',
+  cart_item_removed: '{name} removido do carrinho. {count} itens no carrinho.',
+  cart_cleared: 'Carrinho esvaziado.',
+  cart_quantity_updated: '{name}: {quantity} unidades. {count} itens no carrinho.',
+
   // Footer
   rights_reserved: 'Todos os direitos reservados.',
 } as const;
@@ -271,6 +279,12 @@ const en: Partial<Record<TranslationKey, string>> = {
   offline_notice:
     'You are offline. Showing the catalog saved on your device; WhatsApp orders need a connection.',
   offline_action_blocked: 'This action needs an internet connection.',
+  skip_to_content: 'Skip to main content',
+  cart_region_label: 'Cart updates',
+  cart_item_added: '{name} added to the cart. {count} items in the cart.',
+  cart_item_removed: '{name} removed from the cart. {count} items in the cart.',
+  cart_cleared: 'Cart cleared.',
+  cart_quantity_updated: '{name}: {quantity} units. {count} items in the cart.',
 
 };
 
