@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://loja-comunitaria.lovable.app/sitemap.xml

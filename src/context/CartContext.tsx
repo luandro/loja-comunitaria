@@ -1,6 +1,17 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { generateOrderId } from '@/lib/whatsapp';
+import { useSiteContent } from '@/context/SiteContentContext';
+import { translate, type TranslationKey } from '@/lib/i18n';
 
 export interface CartItem {
   id: number;
@@ -24,6 +35,8 @@ interface CartContextValue {
   removeItem: (id: number) => void;
   clearCart: () => void;
   createOrder: () => string;
+  /** Last cart change, announced to screen readers through a live region. */
+  announcement: string;
 }
 
 const CART_KEY = 'cart';
@@ -50,7 +63,11 @@ const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
+  const { content } = useSiteContent();
+  const language = content.default_language || 'pt-BR';
   const [cart, setCart] = useState<CartItem[]>(() => readCart());
+  const [announcement, setAnnouncement] = useState('');
+  const pending = useRef<{ key: TranslationKey; name?: string; quantity?: number } | null>(null);
   const [orderId, setOrderId] = useState<string>(() => readOrderId());
 
   useEffect(() => {
@@ -72,25 +89,32 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const updateQuantity = useCallback((id: number, quantity: number) => {
     if (quantity < 1) return;
-    setCart((prev) =>
-      prev.map((it) => {
+    setCart((prev) => {
+      const item = prev.find((it) => it.id === id);
+      if (item) pending.current = { key: 'cart_quantity_updated', name: item.name, quantity };
+      return prev.map((it) => {
         if (it.id !== id) return it;
         const capped =
           it.maxQuantity !== undefined ? Math.min(quantity, it.maxQuantity) : quantity;
         return { ...it, quantity: Math.max(1, capped) };
-      }),
-    );
+      });
+    });
   }, []);
 
   const removeItem = useCallback(
     (id: number) => {
-      setCart((prev) => prev.filter((it) => it.id !== id));
+      setCart((prev) => {
+        const item = prev.find((it) => it.id === id);
+        pending.current = { key: 'cart_item_removed', name: item?.name };
+        return prev.filter((it) => it.id !== id);
+      });
       toast({ description: 'Item removido do carrinho' });
     },
     [toast],
   );
 
   const clearCart = useCallback(() => {
+    pending.current = { key: 'cart_cleared' };
     setCart([]);
     setOrderId('');
   }, []);
@@ -98,6 +122,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const addItem = useCallback(
     (item: CartItem) => {
       setCart((prev) => {
+        pending.current = { key: 'cart_item_added', name: item.name };
         const existing = prev.find((i) => i.id === item.id);
         const max = item.maxQuantity;
         if (existing) {
@@ -132,6 +157,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     [cart],
   );
 
+  useEffect(() => {
+    const action = pending.current;
+    if (!action) return;
+    pending.current = null;
+    const message = translate(action.key, language)
+      .replace('{name}', action.name ?? '')
+      .replace('{count}', String(itemCount))
+      .replace('{quantity}', String(action.quantity ?? ''));
+    setAnnouncement(message);
+  }, [cart, itemCount, language]);
+
   const value: CartContextValue = {
     cart,
     total,
@@ -143,6 +179,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     removeItem,
     clearCart,
     createOrder,
+    announcement,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

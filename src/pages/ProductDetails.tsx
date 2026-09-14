@@ -14,6 +14,9 @@ import { useStore } from "@/hooks/use-store";
 import { MetaRow } from "@/components/ProductMeta";
 import { useCommunities } from "@/hooks/use-communities";
 import { slugify } from "@/lib/communities";
+import { findProductByParam, productSlug } from "@/lib/product-url";
+import { Seo } from "@/components/Seo";
+import { absoluteUrl, clampDescription, pageTitle } from "@/lib/seo";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -21,7 +24,7 @@ const ProductDetails = () => {
   const { toast } = useToast();
   const { addItem, cart } = useCart();
   const store = useStore();
-  const { getProduct, products, isLoading: productsLoading } = useProducts();
+  const { products, isLoading: productsLoading } = useProducts();
 
   const { communities } = useCommunities();
   const [activeImage, setActiveImage] = useState(0);
@@ -31,7 +34,7 @@ const ProductDetails = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Check if product is in cart
-  const existingCartItem = cart.find(item => item.id === Number(id));
+  const existingCartItem = cart.find((item) => item.id === product?.id);
 
   const status = product
     ? getInventoryStatus({
@@ -53,48 +56,22 @@ const ProductDetails = () => {
   const showQuantityPicker = !isUnique && !isSoldOut;
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      if (!id) {
-        setError("ID do produto não fornecido");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const productId = parseInt(id, 10);
-
-        // First check if the product is already in the products list
-        const foundProduct = products.find(p => p.id === productId);
-        if (foundProduct) {
-          setProduct(foundProduct);
-          setLoading(false);
-          return;
-        }
-
-        // If not in the list or if products are still loading, fetch individually
-        if (products.length === 0 || !foundProduct) {
-          const productData = await getProduct(productId);
-
-          if (productData) {
-            setProduct(productData);
-          } else {
-            setError("Produto não encontrado");
-          }
-        }
-      } catch (err) {
-        console.error("Erro ao carregar detalhes do produto:", err);
-        setError("Erro ao carregar detalhes do produto");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Wait for products to load if they're loading
-    if (!productsLoading || products.length > 0) {
-      fetchProduct();
+    // URLs accept a slug (preferred) or the legacy numeric id.
+    const found = findProductByParam(products, id);
+    if (found) {
+      setProduct(found);
+      setError(null);
+      setLoading(false);
+      return;
     }
-  }, [id, getProduct, products, productsLoading]);
+    if (!productsLoading) {
+      setProduct(null);
+      setError(store.t("product_not_found"));
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+  }, [id, products, productsLoading, store]);
 
   // Reset quantity when product changes
   useEffect(() => {
@@ -106,6 +83,44 @@ const ProductDetails = () => {
     if (!product) return [] as string[];
     return Array.from(new Set([product.image, ...(product.galleryImages ?? [])].filter(Boolean)));
   }, [product]);
+
+  const seoTitle = product
+    ? pageTitle([product.seoTitle || product.name, store.storeName])
+    : store.t("product_not_found");
+  const seoDescription = product
+    ? clampDescription(
+        product.seoDescription || product.longDescription || product.description || "",
+      )
+    : "";
+  const seoPath = product ? `/produto/${productSlug(product)}` : undefined;
+
+  const productJsonLd = useMemo(() => {
+    if (!product || !status) return undefined;
+    const availability = status.isSoldOut
+      ? "https://schema.org/OutOfStock"
+      : status.type === "made_to_order"
+        ? "https://schema.org/PreOrder"
+        : "https://schema.org/InStock";
+    return {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: product.name,
+      ...(seoDescription ? { description: seoDescription } : {}),
+      ...(product.image ? { image: [product.image, ...(product.galleryImages ?? [])] } : {}),
+      ...(product.category ? { category: product.category } : {}),
+      ...(product.materials ? { material: product.materials } : {}),
+      ...(product.makerName || product.peopleOrCommunity
+        ? { brand: { "@type": "Organization", name: product.makerName || product.peopleOrCommunity } }
+        : {}),
+      offers: {
+        "@type": "Offer",
+        price: product.price,
+        priceCurrency: store.currency,
+        availability,
+        url: absoluteUrl(`/produto/${productSlug(product)}`),
+      },
+    };
+  }, [product, status, seoDescription, store.currency]);
 
   const communitySlug = product?.communitySlug
     ? slugify(product.communitySlug)
@@ -160,6 +175,7 @@ const ProductDetails = () => {
   if (error || !product) {
     return (
       <div className="container mx-auto py-16 text-center">
+        <Seo title={pageTitle([store.t("product_not_found"), store.storeName])} noindex />
         <h1 className="text-2xl text-forest-900 mb-4">
           {error || "Produto não encontrado"}
         </h1>
@@ -174,6 +190,14 @@ const ProductDetails = () => {
   }
 
   return (
+    <>
+    <Seo
+      title={seoTitle}
+      description={seoDescription}
+      image={product.image || undefined}
+      path={seoPath}
+      jsonLd={productJsonLd}
+    />
     <div className="bg-white py-16 animate-fadeIn">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -320,6 +344,7 @@ const ProductDetails = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

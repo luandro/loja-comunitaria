@@ -12,6 +12,9 @@ import Footer from "./components/Footer";
 import { WhatsAppFloat } from "./components/WhatsAppFloat";
 import { StoreDiagnostics } from "./components/StoreDiagnostics";
 import { OfflineNotice } from "./components/OfflineNotice";
+import { SkipLink } from "./components/SkipLink";
+import { CartLiveRegion } from "./components/CartLiveRegion";
+import { SiteSchema } from "./components/SiteSchema";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
@@ -32,11 +35,14 @@ const App = () => (
         <BrowserRouter>
           <CartProvider>
             <div className="flex flex-col min-h-screen">
+              <SkipLink />
+              <SiteSchema />
+              <CartLiveRegion />
               <OfflineNotice />
               <StoreDiagnostics />
               <Navbar />
 
-              <main className="flex-grow">
+              <main id="conteudo" tabIndex={-1} className="flex-grow focus:outline-none">
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/produtos" element={<Products />} />
