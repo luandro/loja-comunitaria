@@ -84,6 +84,44 @@ const ProductDetails = () => {
     return Array.from(new Set([product.image, ...(product.galleryImages ?? [])].filter(Boolean)));
   }, [product]);
 
+  const seoTitle = product
+    ? pageTitle([product.seoTitle || product.name, store.storeName])
+    : store.t("product_not_found");
+  const seoDescription = product
+    ? clampDescription(
+        product.seoDescription || product.longDescription || product.description || "",
+      )
+    : "";
+  const seoPath = product ? `/produto/${productSlug(product)}` : undefined;
+
+  const productJsonLd = useMemo(() => {
+    if (!product || !status) return undefined;
+    const availability = status.isSoldOut
+      ? "https://schema.org/OutOfStock"
+      : status.type === "made_to_order"
+        ? "https://schema.org/PreOrder"
+        : "https://schema.org/InStock";
+    return {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: product.name,
+      ...(seoDescription ? { description: seoDescription } : {}),
+      ...(product.image ? { image: [product.image, ...(product.galleryImages ?? [])] } : {}),
+      ...(product.category ? { category: product.category } : {}),
+      ...(product.materials ? { material: product.materials } : {}),
+      ...(product.makerName || product.peopleOrCommunity
+        ? { brand: { "@type": "Organization", name: product.makerName || product.peopleOrCommunity } }
+        : {}),
+      offers: {
+        "@type": "Offer",
+        price: product.price,
+        priceCurrency: store.currency,
+        availability,
+        url: absoluteUrl(`/produto/${productSlug(product)}`),
+      },
+    };
+  }, [product, status, seoDescription, store.currency]);
+
   const communitySlug = product?.communitySlug
     ? slugify(product.communitySlug)
     : product?.peopleOrCommunity
@@ -137,6 +175,7 @@ const ProductDetails = () => {
   if (error || !product) {
     return (
       <div className="container mx-auto py-16 text-center">
+        <Seo title={pageTitle([store.t("product_not_found"), store.storeName])} noindex />
         <h1 className="text-2xl text-forest-900 mb-4">
           {error || "Produto não encontrado"}
         </h1>
@@ -151,6 +190,14 @@ const ProductDetails = () => {
   }
 
   return (
+    <>
+    <Seo
+      title={seoTitle}
+      description={seoDescription}
+      image={product.image || undefined}
+      path={seoPath}
+      jsonLd={productJsonLd}
+    />
     <div className="bg-white py-16 animate-fadeIn">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -297,6 +344,7 @@ const ProductDetails = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
