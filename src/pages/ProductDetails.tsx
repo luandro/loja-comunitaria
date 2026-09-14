@@ -14,6 +14,9 @@ import { useStore } from "@/hooks/use-store";
 import { MetaRow } from "@/components/ProductMeta";
 import { useCommunities } from "@/hooks/use-communities";
 import { slugify } from "@/lib/communities";
+import { findProductByParam, productSlug } from "@/lib/product-url";
+import { Seo } from "@/components/Seo";
+import { absoluteUrl, clampDescription, pageTitle } from "@/lib/seo";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -21,7 +24,7 @@ const ProductDetails = () => {
   const { toast } = useToast();
   const { addItem, cart } = useCart();
   const store = useStore();
-  const { getProduct, products, isLoading: productsLoading } = useProducts();
+  const { products, isLoading: productsLoading } = useProducts();
 
   const { communities } = useCommunities();
   const [activeImage, setActiveImage] = useState(0);
@@ -31,7 +34,7 @@ const ProductDetails = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Check if product is in cart
-  const existingCartItem = cart.find(item => item.id === Number(id));
+  const existingCartItem = cart.find((item) => item.id === product?.id);
 
   const status = product
     ? getInventoryStatus({
@@ -53,48 +56,22 @@ const ProductDetails = () => {
   const showQuantityPicker = !isUnique && !isSoldOut;
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      if (!id) {
-        setError("ID do produto não fornecido");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const productId = parseInt(id, 10);
-
-        // First check if the product is already in the products list
-        const foundProduct = products.find(p => p.id === productId);
-        if (foundProduct) {
-          setProduct(foundProduct);
-          setLoading(false);
-          return;
-        }
-
-        // If not in the list or if products are still loading, fetch individually
-        if (products.length === 0 || !foundProduct) {
-          const productData = await getProduct(productId);
-
-          if (productData) {
-            setProduct(productData);
-          } else {
-            setError("Produto não encontrado");
-          }
-        }
-      } catch (err) {
-        console.error("Erro ao carregar detalhes do produto:", err);
-        setError("Erro ao carregar detalhes do produto");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Wait for products to load if they're loading
-    if (!productsLoading || products.length > 0) {
-      fetchProduct();
+    // URLs accept a slug (preferred) or the legacy numeric id.
+    const found = findProductByParam(products, id);
+    if (found) {
+      setProduct(found);
+      setError(null);
+      setLoading(false);
+      return;
     }
-  }, [id, getProduct, products, productsLoading]);
+    if (!productsLoading) {
+      setProduct(null);
+      setError(store.t("product_not_found"));
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+  }, [id, products, productsLoading, store]);
 
   // Reset quantity when product changes
   useEffect(() => {
