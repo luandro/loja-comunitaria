@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { InventoryBadge } from "@/components/InventoryBadge";
 import { StoreImage } from "@/components/StoreImage";
 import { getInventoryStatus, type InventoryType } from "@/lib/inventory";
+import { productPath } from "@/lib/product-url";
 
 interface ProductCardProps {
   id: number;
@@ -19,6 +20,7 @@ interface ProductCardProps {
   peopleOrCommunity?: string;
   originLocation?: string;
   communitySlug?: string;
+  slug?: string;
 }
 
 const ProductCard = ({
@@ -32,6 +34,7 @@ const ProductCard = ({
   productionTime,
   peopleOrCommunity,
   originLocation,
+  slug,
 }: ProductCardProps) => {
   const { addItem, cart } = useCart();
   const store = useStore();
@@ -66,7 +69,7 @@ const ProductCard = ({
         status.type === "unique" && !status.isSoldOut ? "border-2 border-amber-400" : ""
       }`}
     >
-      <Link to={`/produto/${id}`} className="block">
+      <Link to={productPath({ id, slug, name })} className="block">
         <div className="aspect-square overflow-hidden relative">
           <StoreImage
             src={image}
@@ -103,6 +106,7 @@ const ProductCard = ({
           onClick={handleAddToCart}
         >
           <ShoppingCart className="mr-2 h-4 w-4" />
+          <span className="sr-only">{name}: </span>
           {status.isSoldOut
             ? store.t("sold_out_label")
             : reachedLimit
