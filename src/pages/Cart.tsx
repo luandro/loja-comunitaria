@@ -11,6 +11,8 @@ import {
   type OrderRequestData,
 } from '@/lib/order-request';
 import { useToast } from '@/hooks/use-toast';
+import { Seo } from '@/components/Seo';
+import { pageTitle } from '@/lib/seo';
 
 const Cart = () => {
   const { cart, total, orderId, updateQuantity, removeItem, clearCart, isEmpty, createOrder } =
@@ -45,10 +47,21 @@ const Cart = () => {
     return getWhatsAppCustomLink(message, whatsappNumber);
   }, [cart, total, reference, form, store.storeName, store.locale, store.currency, whatsappNumber]);
 
-  if (isEmpty) return <EmptyCart />;
+  const cartSeo = (
+    <Seo title={pageTitle([store.t('cart_title'), store.storeName])} path="/carrinho" noindex />
+  );
+
+  if (isEmpty)
+    return (
+      <>
+        {cartSeo}
+        <EmptyCart />
+      </>
+    );
 
   return (
     <div className="bg-sand-50 py-16 animate-fadeIn">
+      {cartSeo}
       <div className="container mx-auto">
         <h1 className="text-3xl font-marcellus text-forest-900 mb-2">{store.t('cart_title')}</h1>
         <p className="text-forest-700">{store.text('order_notice', 'order_notice_fallback')}</p>

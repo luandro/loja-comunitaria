@@ -155,3 +155,34 @@ visita, é possível navegar pelo catálogo, ver produtos e montar o carrinho se
 Só é preciso conexão para abrir o WhatsApp ou links externos. Um aviso aparece no topo
 quando o aparelho está sem conexão. O site também pode ser instalado na tela inicial do
 celular.
+
+## Hospedagem estática e links diretos
+
+O site é 100% estático (sem servidor). Endereços diretos como
+`/produto/cesto-krahô` precisam que o host devolva o `index.html` para qualquer
+rota. Já deixamos os arquivos prontos:
+
+- **Lovable** e **Netlify**: `public/_redirects` com `/* /index.html 200`.
+- **Vercel**: `vercel.json` com rewrite de `/(.*)` para `/index.html`.
+- **Cloudflare Pages**: usa o mesmo `public/_redirects`.
+- **GitHub Pages**: não tem reescrita própria; copie o `index.html` publicado
+  como `404.html` na pasta publicada (`cp dist/index.html dist/404.html`).
+
+### Endereços dos produtos
+
+Se a planilha tiver a coluna `slug`, o endereço usa o nome
+(`/produto/cesto-krahô`). Sem `slug`, continua usando o número
+(`/produto/12`). Links antigos com número seguem funcionando para sempre.
+
+## SEO: o que é possível sem servidor
+
+- `index.html`, `robots.txt` e `sitemap.xml` (gerado na build a partir de
+  `public/data/products.csv`) são estáticos e lidos por qualquer buscador.
+- Título, descrição, canonical, Open Graph e os dados estruturados de produto e
+  comunidade são aplicados **no navegador**, porque o catálogo vem da planilha
+  do Google só quando a página abre. Buscadores que executam JavaScript (Google)
+  leem esse conteúdo; pré-visualizações de links (WhatsApp, Facebook, LinkedIn)
+  veem apenas as informações fixas do `index.html`. Para prévias por produto
+  seria necessário renderização no servidor, o que este projeto não usa.
+- A planilha pode informar `seo_title` e `seo_description` por produto; quando
+  vazios, usamos nome e descrição.

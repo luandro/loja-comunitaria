@@ -1,5 +1,7 @@
 import { useStore } from "@/hooks/use-store";
 import { StoreImage } from "@/components/StoreImage";
+import { Seo } from "@/components/Seo";
+import { clampDescription, pageTitle } from "@/lib/seo";
 
 const About = () => {
   const store = useStore();
@@ -17,6 +19,12 @@ const About = () => {
 
   return (
     <div className="bg-sand-50 py-16 animate-fadeIn">
+      <Seo
+        title={pageTitle([store.text("about_title", "about_title_fallback"), store.storeName])}
+        description={clampDescription(aboutText || store.tagline || "")}
+        image={aboutImage || undefined}
+        path="/sobre"
+      />
       <div className="container mx-auto">
         <h1 className="text-4xl font-marcellus text-forest-900 text-center mb-12">
           {store.text("about_title", "about_title_fallback")}

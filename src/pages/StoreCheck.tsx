@@ -14,6 +14,7 @@ import {
   type CheckItem,
 } from '@/lib/store-check';
 import { toast } from '@/hooks/use-toast';
+import { Seo } from "@/components/Seo";
 
 const StatusIcon = ({ status }: { status: CheckItem['status'] }) => {
   const className = 'w-4 h-4 shrink-0 mt-0.5';
@@ -73,6 +74,8 @@ const StoreCheck = () => {
   };
 
   return (
+    <>
+      <Seo title="Verificação da loja" noindex />
     <div className="container mx-auto px-4 py-10 max-w-3xl">
       <h1 className="text-3xl font-serif mb-2">Verificar loja</h1>
       <p className="text-muted-foreground mb-6">
@@ -189,6 +192,7 @@ const StoreCheck = () => {
         </Link>
       </p>
     </div>
+    </>
   );
 };
 

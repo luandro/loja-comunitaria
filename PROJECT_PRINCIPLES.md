@@ -97,3 +97,14 @@ O que a comunidade precisa saber:
   offline no último catálogo carregado.
 - Imagens: miniaturas até ~150 KB, principais até ~500 KB, WebP, largura máx. 1.600 px,
   enquadramento quadrado ou retrato consistente.
+
+## Acessibilidade e descoberta
+
+- Atalho "ir para o conteúdo", foco visível, navegação por teclado e regiões
+  semânticas (`main` único por página).
+- Mudanças do carrinho são anunciadas por uma região `aria-live="polite"`.
+- Disponibilidade nunca depende só de cor: cada selo tem palavra e ícone.
+- Contraste mínimo WCAG AA nos selos e textos.
+- Metadados por página (título, descrição, canonical, JSON-LD) são aplicados no
+  navegador; o `index.html`, `robots.txt` e `sitemap.xml` são estáticos.
+- Hospedagem estática exige fallback de SPA — ver README.

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { MessageSquare, Mail, MapPin, Clock, Send } from "lucide-react";
 import { useStore } from "@/hooks/use-store";
+import { Seo } from "@/components/Seo";
+import { clampDescription, pageTitle } from "@/lib/seo";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -25,6 +27,11 @@ const Contact = () => {
 
   return (
     <div className="bg-sand-50 py-16 animate-fadeIn">
+      <Seo
+        title={pageTitle([store.t("contact_page_title"), store.storeName])}
+        description={clampDescription(store.t("contact_page_title") + " — " + store.storeName)}
+        path="/contato"
+      />
       <div className="container mx-auto">
         <h1 className="text-4xl font-marcellus text-forest-900 text-center mb-12">
           {store.t("contact_page_title")}

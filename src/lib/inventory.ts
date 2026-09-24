@@ -131,9 +131,9 @@ export function getInventoryStatus(input: InventoryInput): InventoryStatus {
 }
 
 export const badgeToneClasses: Record<InventoryStatus['badgeTone'], string> = {
-  unique: 'bg-amber-400 text-white',
+  unique: 'bg-amber-200 text-amber-950',
   warning: 'bg-terra-600 text-white',
   info: 'bg-forest-700 text-white',
   neutral: 'bg-sand-200 text-forest-800',
-  soldout: 'bg-forest-900/70 text-white',
+  soldout: 'bg-forest-900 text-white',
 };
