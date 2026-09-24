@@ -192,6 +192,7 @@ const StoreCheck = () => {
         </Link>
       </p>
     </div>
+    </>
   );
 };
 
