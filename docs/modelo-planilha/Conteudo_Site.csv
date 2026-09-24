@@ -1,0 +1,29 @@
+chave,valor,o que é
+nome_site,Nome da sua loja,Obrigatório. Aparece no topo e na aba do navegador.
+slogan_site,Frase curta,Aparece abaixo do nome.
+numero_whatsapp,5511900000000,"Obrigatório para receber pedidos. Só números, com 55 + DDD. Use o número PÚBLICO da loja."
+mensagem_whatsapp,Olá! Vim pelo site.,Mensagem inicial do botão de WhatsApp.
+email_contato,,E-mail público da loja (opcional).
+localizacao,,"Cidade/região exibida no contato (opcional, nunca endereço de pessoa)."
+horario_atendimento,,"Ex.: Seg a sex, 9h às 17h."
+url_instagram,, 
+url_facebook,,
+url_logo,,Link direto da imagem do logo.
+titulo_hero,,Título grande da página inicial.
+descricao_hero,,Texto da página inicial.
+url_imagem_hero,,
+titulo_sobre,,
+texto_sobre,,"Texto da página Sobre, escrito e aprovado pela comunidade."
+aviso_pedido,,Aviso exibido no carrinho.
+politica_envio,,
+retirada_disponivel,,sim ou nao
+cor_primaria,#0E3A2F,Cor principal (formato #RRGGBB).
+cor_destaque,,
+modo_checkout,whatsapp_first,whatsapp_first (padrão) ou pix_immediate.
+ativar_pix,nao,sim para mostrar Pix. Veja docs/PIX.md.
+chave_pix,,
+nome_recebedor_pix,,
+cidade_recebedor_pix,,
+titulo_meta,,Título para buscadores.
+descricao_meta,,Descrição para buscadores.
+texto_copyright,,
