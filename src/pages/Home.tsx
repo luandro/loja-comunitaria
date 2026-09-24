@@ -17,8 +17,14 @@ const Home = () => {
   return (
     <div className="animate-fadeIn">
       <Seo
-        title={pageTitle([store.storeName, store.text("hero_title", "hero_title_fallback")])}
-        description={clampDescription(store.text("hero_description", "hero_description_fallback"))}
+        title={
+          store.optional("meta_title") ||
+          pageTitle([store.storeName, store.text("hero_title", "hero_title_fallback")])
+        }
+        description={clampDescription(
+          store.optional("meta_description") ||
+            store.text("hero_description", "hero_description_fallback"),
+        )}
         image={heroImage || undefined}
         path="/"
       />
