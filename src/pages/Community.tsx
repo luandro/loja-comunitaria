@@ -6,6 +6,8 @@ import { useCommunities } from "@/hooks/use-communities";
 import { useStore } from "@/hooks/use-store";
 import { slugify } from "@/lib/communities";
 import { StoreImage } from "@/components/StoreImage";
+import { Seo } from "@/components/Seo";
+import { clampDescription, pageTitle } from "@/lib/seo";
 
 const CommunityPage = () => {
   const { slug = "" } = useParams();
@@ -41,6 +43,7 @@ const CommunityPage = () => {
   if (!title) {
     return (
       <div className="container mx-auto py-16 text-center">
+        <Seo title={pageTitle([store.t("community_not_found"), store.storeName])} noindex />
         <h1 className="text-2xl font-marcellus text-forest-900 mb-4">
           {store.t("community_not_found")}
         </h1>

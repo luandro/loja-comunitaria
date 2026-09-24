@@ -4,6 +4,8 @@ import { useProducts } from "@/hooks/use-products";
 import { useStore } from "@/hooks/use-store";
 import { StoreImage } from "@/components/StoreImage";
 import ProductGridSkeleton from "@/components/ProductGridSkeleton";
+import { Seo } from "@/components/Seo";
+import { clampDescription, pageTitle } from "@/lib/seo";
 
 const Home = () => {
   const { featuredProducts, isLoading, error, refreshProducts } = useProducts();
@@ -14,6 +16,12 @@ const Home = () => {
 
   return (
     <div className="animate-fadeIn">
+      <Seo
+        title={pageTitle([store.storeName, store.text("hero_title", "hero_title_fallback")])}
+        description={clampDescription(store.text("hero_description", "hero_description_fallback"))}
+        image={heroImage || undefined}
+        path="/"
+      />
       {/* Hero Section */}
       <section
         className="relative bg-forest-900 text-white py-24 bg-cover bg-center"

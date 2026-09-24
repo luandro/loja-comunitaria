@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { MessageSquare, Mail, MapPin, Clock, Send } from "lucide-react";
 import { useStore } from "@/hooks/use-store";
+import { Seo } from "@/components/Seo";
+import { clampDescription, pageTitle } from "@/lib/seo";
 
 const Contact = () => {
   const { toast } = useToast();

@@ -8,6 +8,8 @@ import ProductGridSkeleton from "../components/ProductGridSkeleton";
 import { Button } from "@/components/ui/button";
 import { useProducts } from "@/hooks/use-products";
 import { useStore } from "@/hooks/use-store";
+import { Seo } from "@/components/Seo";
+import { clampDescription, pageTitle } from "@/lib/seo";
 
 import {
   DEFAULT_FILTERS,
