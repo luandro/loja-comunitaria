@@ -69,8 +69,24 @@ const Products = () => {
     [products, filters, searchIndex],
   );
 
+  const categoryLabel = filters.category || filters.community || "";
+  const listTitle = pageTitle([
+    [store.text("products_page_title", "products_page_title"), categoryLabel]
+      .filter(Boolean)
+      .join(" — "),
+    store.storeName,
+  ]);
+
   return (
     <div className="bg-sand-50 py-16 animate-fadeIn">
+      <Seo
+        title={listTitle}
+        description={clampDescription(
+          store.text("products_page_description", "products_page_title"),
+        )}
+        path="/produtos"
+        noindex={Boolean(filters.query)}
+      />
       <div className="container mx-auto">
         <h1 className="text-4xl font-marcellus text-forest-900 text-center mb-8">
           {store.text("products_page_title", "products_page_title")}

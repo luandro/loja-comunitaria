@@ -66,6 +66,12 @@ const CommunityPage = () => {
 
   return (
     <div className="bg-sand-50 py-12 animate-fadeIn">
+      <Seo
+        title={pageTitle([title, store.storeName])}
+        description={clampDescription(community?.description || title)}
+        image={community?.heroImage || undefined}
+        path={`/comunidade/${slugify(slug)}`}
+      />
       <div className="container mx-auto">
         {community?.heroImage && (
           <div className="mb-8 rounded-lg overflow-hidden aspect-[16/9] md:aspect-[21/9]">
