@@ -84,18 +84,8 @@ export const SiteContentProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [reloadToken]);
 
-  // Sync document title + meta description from the sheet
+  // Favicon from the sheet. Title/description are owned by <Seo> per route.
   useEffect(() => {
-    if (content.meta_title) document.title = content.meta_title;
-    if (content.meta_description) {
-      let tag = document.querySelector('meta[name="description"]');
-      if (!tag) {
-        tag = document.createElement('meta');
-        tag.setAttribute('name', 'description');
-        document.head.appendChild(tag);
-      }
-      tag.setAttribute('content', content.meta_description);
-    }
     if (content.favicon_url) {
       let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null;
       if (!link) {
