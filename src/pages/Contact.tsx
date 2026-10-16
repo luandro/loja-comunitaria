@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { MessageSquare, Mail, MapPin, Clock, Send } from "lucide-react";
 import { useStore } from "@/hooks/use-store";
 import { Seo } from "@/components/Seo";
 import { clampDescription, pageTitle } from "@/lib/seo";
 
 const Contact = () => {
-  const { toast } = useToast();
   const store = useStore();
   const { contact } = store;
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
@@ -152,6 +150,7 @@ const Contact = () => {
             )}
           </div>
 
+          {contact.hasAnyChannel && (
           <div className="bg-white p-8 rounded-lg shadow-sm">
             <h2 className="text-2xl font-marcellus text-forest-900 mb-6">
               {store.t("contact_form_title")}
