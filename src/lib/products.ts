@@ -254,7 +254,7 @@ export async function loadProductsFromCSV(): Promise<Product[]> {
     const csv = await response.text();
     return finalize(parseCSV(csv));
   } catch (error) {
-    console.error('Error loading products from CSV:', error);
+    if (import.meta.env.DEV) console.error('[PRODUCTS] Error loading bundled CSV:', error);
     return [];
   }
 }
