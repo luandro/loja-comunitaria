@@ -116,7 +116,8 @@ export function rowToProduct(row: Record<string, unknown>): Product | null {
   const description = pick(row, 'description', 'descricao', 'short_description', 'descricao_curta');
 
   if (!Number.isFinite(id) || !name || !Number.isFinite(price)) {
-    console.warn('[PRODUCTS] Skipping invalid row (missing id/name/price):', row);
+    if (import.meta.env.DEV)
+      console.warn('[PRODUCTS] Skipping invalid row (missing id/name/price):', row);
     return null;
   }
 
@@ -149,13 +150,11 @@ export function rowToProduct(row: Record<string, unknown>): Product | null {
     inventoryType = typeRaw as InventoryType;
   } else {
     // Safe legacy fallback: never invent availability out of a missing/zero stock.
-    if (typeRaw) {
+    if (import.meta.env.DEV) {
       console.warn(
-        `[PRODUCTS] Unknown inventory_type "${typeRaw}" for product ${id} (${name}). Using legacy fallback.`,
-      );
-    } else {
-      console.warn(
-        `[PRODUCTS] Missing inventory_type for product ${id} (${name}). Using legacy fallback — add inventory_type/tipo_estoque to the sheet.`,
+        typeRaw
+          ? `[PRODUCTS] Unknown inventory_type "${typeRaw}" for product ${id} (${name}). Using legacy fallback.`
+          : `[PRODUCTS] Missing inventory_type for product ${id} (${name}). Using legacy fallback — add inventory_type/tipo_estoque to the sheet.`,
       );
     }
     // Legacy: a stock number means limited (0 => unavailable, never a "unique available" piece).
