@@ -11,13 +11,25 @@ const Contact = () => {
   const { contact } = store;
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
 
+  /**
+   * There is no backend inbox: the form opens the visitor's own WhatsApp
+   * (preferred) or email app with the message pre-filled, so the store
+   * actually receives it. Nothing is "sent" silently.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: store.t("message_sent_title"),
-      description: store.t("message_sent_description"),
-    });
-    setFormData({ name: "", email: "", message: "" });
+    const body = `${formData.message}\n\n— ${formData.name} (${formData.email})`;
+    if (contact.hasWhatsApp) {
+      window.open(
+        `https://api.whatsapp.com/send?phone=${contact.whatsappNumber}&text=${encodeURIComponent(body)}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
+    } else if (contact.email) {
+      window.location.href = `mailto:${contact.email}?subject=${encodeURIComponent(
+        `${store.storeName} — ${store.t("contact_form_title")}`,
+      )}&body=${encodeURIComponent(body)}`;
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
