@@ -150,8 +150,12 @@ const ptBR = {
   field_email: 'E-mail',
   field_message: 'Mensagem',
   send_message: 'Enviar mensagem',
-  message_sent_title: 'Mensagem enviada!',
-  message_sent_description: 'Entraremos em contato em breve.',
+  send_via_whatsapp: 'Enviar pelo WhatsApp',
+  send_via_email: 'Enviar por e-mail',
+  contact_form_hint_whatsapp:
+    'Ao enviar, o WhatsApp abre com sua mensagem pronta — a loja recebe direto no celular.',
+  contact_form_hint_email:
+    'Ao enviar, seu aplicativo de e-mail abre com a mensagem pronta para a loja.',
   no_contact_channel:
     'Esta loja ainda não configurou um canal de contato.',
 
@@ -265,6 +269,12 @@ const en: Partial<Record<TranslationKey, string>> = {
   email: 'Email',
   business_hours: 'Opening hours',
   send_message: 'Send message',
+  send_via_whatsapp: 'Send via WhatsApp',
+  send_via_email: 'Send by email',
+  contact_form_hint_whatsapp:
+    'When you send, WhatsApp opens with your message ready — the store receives it directly.',
+  contact_form_hint_email:
+    'When you send, your email app opens with the message ready for the store.',
   rights_reserved: 'All rights reserved.',
   label_community: 'People or community',
   label_maker: 'Made by',
