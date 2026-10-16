@@ -201,12 +201,20 @@ const Contact = () => {
                 />
               </div>
 
+              <p className="text-sm text-forest-700">
+                {contact.hasWhatsApp
+                  ? store.t("contact_form_hint_whatsapp")
+                  : store.t("contact_form_hint_email")}
+              </p>
               <button type="submit" className="btn btn-primary w-full flex items-center justify-center">
                 <Send className="w-4 h-4 mr-2" />
-                {store.t("send_message")}
+                {contact.hasWhatsApp
+                  ? store.t("send_via_whatsapp")
+                  : store.t("send_via_email")}
               </button>
             </form>
           </div>
+          )}
         </div>
       </div>
     </div>
