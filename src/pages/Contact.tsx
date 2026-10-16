@@ -1,23 +1,33 @@
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { MessageSquare, Mail, MapPin, Clock, Send } from "lucide-react";
 import { useStore } from "@/hooks/use-store";
 import { Seo } from "@/components/Seo";
 import { clampDescription, pageTitle } from "@/lib/seo";
 
 const Contact = () => {
-  const { toast } = useToast();
   const store = useStore();
   const { contact } = store;
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
 
+  /**
+   * There is no backend inbox: the form opens the visitor's own WhatsApp
+   * (preferred) or email app with the message pre-filled, so the store
+   * actually receives it. Nothing is "sent" silently.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: store.t("message_sent_title"),
-      description: store.t("message_sent_description"),
-    });
-    setFormData({ name: "", email: "", message: "" });
+    const body = `${formData.message}\n\n— ${formData.name} (${formData.email})`;
+    if (contact.hasWhatsApp) {
+      window.open(
+        `https://api.whatsapp.com/send?phone=${contact.whatsappNumber}&text=${encodeURIComponent(body)}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
+    } else if (contact.email) {
+      window.location.href = `mailto:${contact.email}?subject=${encodeURIComponent(
+        `${store.storeName} — ${store.t("contact_form_title")}`,
+      )}&body=${encodeURIComponent(body)}`;
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -140,6 +150,7 @@ const Contact = () => {
             )}
           </div>
 
+          {contact.hasAnyChannel && (
           <div className="bg-white p-8 rounded-lg shadow-sm">
             <h2 className="text-2xl font-marcellus text-forest-900 mb-6">
               {store.t("contact_form_title")}
@@ -190,12 +201,20 @@ const Contact = () => {
                 />
               </div>
 
+              <p className="text-sm text-forest-700">
+                {contact.hasWhatsApp
+                  ? store.t("contact_form_hint_whatsapp")
+                  : store.t("contact_form_hint_email")}
+              </p>
               <button type="submit" className="btn btn-primary w-full flex items-center justify-center">
                 <Send className="w-4 h-4 mr-2" />
-                {store.t("send_message")}
+                {contact.hasWhatsApp
+                  ? store.t("send_via_whatsapp")
+                  : store.t("send_via_email")}
               </button>
             </form>
           </div>
+          )}
         </div>
       </div>
     </div>

@@ -68,7 +68,8 @@ export async function loadCommunities(): Promise<Community[]> {
     const rows = (await res.json()) as Array<Record<string, unknown>>;
     return rows.map(rowToCommunity).filter((c): c is Community => c !== null);
   } catch (err) {
-    console.info('[COMMUNITIES] Optional Comunidades tab unavailable:', err);
+    if (import.meta.env.DEV)
+      console.info('[COMMUNITIES] Optional Comunidades tab unavailable:', err);
     return [];
   }
 }

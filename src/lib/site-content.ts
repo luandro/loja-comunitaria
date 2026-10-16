@@ -304,7 +304,8 @@ export async function loadSiteContent(): Promise<SiteContentResult> {
     'Conteudo_Site';
 
   if (!spreadsheetId) {
-    console.warn('[SITE_CONTENT] No spreadsheet ID configured, using defaults');
+    if (import.meta.env.DEV)
+      console.warn('[SITE_CONTENT] No spreadsheet ID configured, using defaults');
     return {
       content: { ...DEFAULT_SITE_CONTENT },
       status: 'not-configured',

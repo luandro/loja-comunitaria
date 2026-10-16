@@ -116,7 +116,8 @@ export function rowToProduct(row: Record<string, unknown>): Product | null {
   const description = pick(row, 'description', 'descricao', 'short_description', 'descricao_curta');
 
   if (!Number.isFinite(id) || !name || !Number.isFinite(price)) {
-    console.warn('[PRODUCTS] Skipping invalid row (missing id/name/price):', row);
+    if (import.meta.env.DEV)
+      console.warn('[PRODUCTS] Skipping invalid row (missing id/name/price):', row);
     return null;
   }
 
@@ -149,13 +150,11 @@ export function rowToProduct(row: Record<string, unknown>): Product | null {
     inventoryType = typeRaw as InventoryType;
   } else {
     // Safe legacy fallback: never invent availability out of a missing/zero stock.
-    if (typeRaw) {
+    if (import.meta.env.DEV) {
       console.warn(
-        `[PRODUCTS] Unknown inventory_type "${typeRaw}" for product ${id} (${name}). Using legacy fallback.`,
-      );
-    } else {
-      console.warn(
-        `[PRODUCTS] Missing inventory_type for product ${id} (${name}). Using legacy fallback — add inventory_type/tipo_estoque to the sheet.`,
+        typeRaw
+          ? `[PRODUCTS] Unknown inventory_type "${typeRaw}" for product ${id} (${name}). Using legacy fallback.`
+          : `[PRODUCTS] Missing inventory_type for product ${id} (${name}). Using legacy fallback — add inventory_type/tipo_estoque to the sheet.`,
       );
     }
     // Legacy: a stock number means limited (0 => unavailable, never a "unique available" piece).
@@ -255,71 +254,9 @@ export async function loadProductsFromCSV(): Promise<Product[]> {
     const csv = await response.text();
     return finalize(parseCSV(csv));
   } catch (error) {
-    console.error('Error loading products from CSV:', error);
+    if (import.meta.env.DEV) console.error('[PRODUCTS] Error loading bundled CSV:', error);
     return [];
   }
 }
 
-/**
- * Load products from Google Spreadsheet (via opensheet.elk.sh)
- */
-export async function loadProductsFromSpreadsheet(): Promise<Product[]> {
-  const spreadsheetId = getEnv('GOOGLE_SPREADSHEET_ID');
-  const tabName = getEnv('GOOGLE_SPREADSHEET_TAB');
-
-  if (!spreadsheetId || !tabName) {
-    throw new Error('Missing spreadsheet configuration');
-  }
-
-  const url = `https://opensheet.elk.sh/${spreadsheetId}/${tabName}`;
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch from Google Spreadsheet: ${response.status}`);
-  }
-
-  const data = (await response.json()) as Array<Record<string, unknown>>;
-  if (data.length > 0) {
-    const headers = Object.keys(data[0]).map((h) => h.toLowerCase());
-    const hasId = headers.includes('id');
-    const hasName = headers.some((h) => ['name', 'nome'].includes(h));
-    const hasPrice = headers.some((h) =>
-      ['price', 'price_brl', 'preco', 'preco_brl'].includes(h),
-    );
-    if (!hasId || !hasName || !hasPrice) {
-      console.warn(
-        '[PRODUCTS] Spreadsheet is missing required columns. Found headers:',
-        headers,
-      );
-    }
-  }
-
-  return finalize(
-    data.map(rowToProduct).filter((p): p is Product => p !== null),
-  );
-}
-
-/**
- * Load products from the preferred source with fallback
- */
-export async function loadProducts(): Promise<Product[]> {
-  const hasSpreadsheetConfig =
-    !!import.meta.env.VITE_GOOGLE_SPREADSHEET_ID &&
-    !!import.meta.env.VITE_GOOGLE_SPREADSHEET_TAB;
-
-  if (hasSpreadsheetConfig) {
-    try {
-      return await loadProductsFromSpreadsheet();
-    } catch (err) {
-      console.warn('[PRODUCTS] Spreadsheet load failed, falling back to CSV', err);
-    }
-  }
-  return await loadProductsFromCSV();
-}
-
-/**
- * Find a single product by ID
- */
-export async function getProductById(id: number): Promise<Product | undefined> {
-  const products = await loadProducts();
-  return products.find((p) => p.id === id);
-}
+// Spreadsheet loading lives in catalog-loader.ts (fetch → validate → cache → CSV fallback).
