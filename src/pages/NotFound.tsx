@@ -9,7 +9,7 @@ const NotFound = () => {
   const store = useStore();
 
   useEffect(() => {
-    console.error("404: rota inexistente:", location.pathname);
+    if (import.meta.env.DEV) console.info('404: rota inexistente:', location.pathname);
   }, [location.pathname]);
 
   return (
