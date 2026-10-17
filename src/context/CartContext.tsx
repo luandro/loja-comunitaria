@@ -74,7 +74,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     try {
       localStorage.setItem(CART_KEY, JSON.stringify(cart));
     } catch (err) {
-      console.error('[Cart] persist failed', err);
+      if (import.meta.env.DEV) console.error('[Cart] persist failed', err);
     }
   }, [cart]);
 
