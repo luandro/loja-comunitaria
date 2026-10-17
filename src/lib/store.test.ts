@@ -9,7 +9,7 @@ describe('formatPrice', () => {
   it('formate en BRL pt-BR', () => {
     const s = createStore(content({ whatsapp_number: '5511999999999' }));
     expect(s.formatPrice(120)).toContain('120');
-    expect(s.formatPrice(120).replace(/ /g, ' ')).toMatch(/R\$/);
+    expect(s.formatPrice(120)).toMatch(/R\$/);
   });
 });
 
