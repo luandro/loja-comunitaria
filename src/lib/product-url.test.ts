@@ -19,7 +19,7 @@ describe('rotas diretas de produto (liens statiques)', () => {
     expect(findProductByParam(products, 'colar-de-sementes')!.id).toBe(7);
   });
   it('retourne undefined pour un paramètre inconnu', () => {
-    expect(findProductByParam(products, 'n'existe-pas')).toBeUndefined();
+    expect(findProductByParam(products, 'inconnu')).toBeUndefined();
   });
   it('productPath préfère le slug', () => {
     expect(productPath(products[0])).toBe('/produto/cesto-de-palha');
