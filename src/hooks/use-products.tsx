@@ -72,7 +72,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
           : null,
       );
     } catch (err) {
-      console.error('[ProductContext] Error fetching products:', err);
+      if (import.meta.env.DEV) console.error('[ProductContext] Error fetching products:', err);
       setError('Não foi possível carregar os produtos. Tente novamente mais tarde.');
     } finally {
       setIsLoading(false);

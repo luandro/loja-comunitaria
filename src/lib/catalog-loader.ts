@@ -122,7 +122,7 @@ export async function loadCatalogSnapshot(): Promise<CatalogSnapshot> {
       };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      console.warn('[CATALOG] Spreadsheet load failed:', message);
+      if (import.meta.env.DEV) console.warn('[CATALOG] Spreadsheet load failed:', message);
       const cached = readCachedCatalog();
       if (cached) {
         return {
