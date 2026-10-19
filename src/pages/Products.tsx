@@ -78,7 +78,7 @@ const Products = () => {
   ]);
 
   return (
-    <div className="bg-sand-50 py-16 animate-fadeIn">
+    <div className="bg-sand-50 py-6 md:py-10">
       <Seo
         title={listTitle}
         description={clampDescription(
@@ -88,7 +88,7 @@ const Products = () => {
         noindex={Boolean(filters.query)}
       />
       <div className="container mx-auto">
-        <h1 className="text-4xl font-marcellus text-forest-900 text-center mb-8">
+        <h1 className="text-2xl md:text-4xl font-marcellus text-forest-900 mb-4">
           {store.text("products_page_title", "products_page_title")}
         </h1>
 
@@ -116,7 +116,7 @@ const Products = () => {
 
         {error && (
           <div className="text-center py-8">
-            <p className="text-red-700 mb-4">{error}</p>
+            <p className="text-red-800 mb-4" role="alert">{error}</p>
             <Button variant="outline" onClick={() => refreshProducts()} disabled={isRefreshing}>
               <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
               {isRefreshing ? store.t("catalog_refreshing") : store.t("catalog_retry")}
@@ -134,13 +134,22 @@ const Products = () => {
         )}
 
         {!isLoading && !error && products.length > 0 && filtered.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-forest-700">{store.t("empty_search_message")}</p>
+          <div className="rounded-lg border border-dashed border-sand-300 bg-white px-4 py-10 text-center">
+            <p className="text-forest-700 mb-4">{store.t("empty_search_message")}</p>
+            <Button variant="outline" onClick={clearFilters}>
+              {store.t("clear_filters")}
+            </Button>
           </div>
         )}
 
+        {products.length > 0 && (
+          <p className="mb-4 rounded-md border border-sand-200 bg-white px-3 py-2 text-sm text-forest-700">
+            {store.optional("inventory_notice") || store.t("catalog_availability_notice")}
+          </p>
+        )}
+
         {!isLoading && !error && filtered.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="product-grid">
             {filtered.map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}
