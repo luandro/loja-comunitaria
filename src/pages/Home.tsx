@@ -30,7 +30,7 @@ const Home = () => {
       />
       {/* Hero Section */}
       <section
-        className="relative bg-forest-900 text-white py-24 bg-cover bg-center"
+        className="relative bg-forest-900 text-white py-10 md:py-16 bg-cover bg-center"
         style={
           heroImage
             ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${heroImage})` }
@@ -38,26 +38,26 @@ const Home = () => {
         }
       >
         <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-marcellus mb-6">
+          <h1 className="text-3xl md:text-5xl font-marcellus mb-3 md:mb-4">
             {store.text("hero_title", "hero_title_fallback")}
           </h1>
-          <p className="text-lg md:text-xl text-sand-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-sand-100 mb-6 max-w-2xl mx-auto">
             {store.text("hero_description", "hero_description_fallback")}
           </p>
-          <Link to="/produtos" className="btn btn-primary text-lg">
+          <Link to="/produtos" className="btn btn-primary w-full sm:w-auto text-lg font-semibold">
             {store.text("hero_button_label", "hero_button_fallback")}
           </Link>
         </div>
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 bg-sand-50">
+      <section className="py-8 md:py-12 bg-sand-50">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-marcellus text-forest-900 text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-marcellus text-forest-900 mb-4 md:mb-6">
             {store.text("featured_products_title", "featured_products_title")}
           </h2>
 
-          {isLoading && featuredProducts.length === 0 && <ProductGridSkeleton count={3} />}
+          {isLoading && featuredProducts.length === 0 && <ProductGridSkeleton count={4} />}
 
           {error && (
             <div className="text-center py-8">
@@ -77,7 +77,7 @@ const Home = () => {
           )}
 
           {!error && featuredProducts.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="product-grid">
               {featuredProducts.map((product) => (
                 <ProductCard key={product.id} {...product} />
               ))}
@@ -85,7 +85,7 @@ const Home = () => {
           )}
 
 
-          <div className="text-center mt-12">
+          <div className="text-center mt-6 md:mt-8">
             <Link to="/produtos" className="btn btn-secondary">
               {store.text("all_products_button_label", "all_products_button_label")}
             </Link>
@@ -95,11 +95,11 @@ const Home = () => {
 
       {/* About Section Preview */}
       {aboutText && (
-        <section className="py-16 bg-white">
+        <section className="py-10 md:py-14 bg-white">
           <div className="container mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center">
               <div>
-                <h2 className="text-3xl font-marcellus text-forest-900 mb-6">
+                <h2 className="text-2xl md:text-3xl font-marcellus text-forest-900 mb-4">
                   {store.text("about_title", "about_title_fallback")}
                 </h2>
                 <p className="text-forest-700 mb-6 whitespace-pre-line">{aboutText}</p>

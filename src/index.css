@@ -87,7 +87,7 @@
   }
 
   .btn-primary {
-    @apply bg-terra-500 text-white hover:bg-terra-600;
+    @apply bg-terra-600 text-white hover:bg-terra-700;
   }
 
   .btn-secondary {
@@ -100,6 +100,10 @@
 
   .page-title {
     @apply text-4xl font-bold tracking-tight text-forest-900 sm:text-5xl mb-6;
+  }
+
+  .product-grid {
+    @apply grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4;
   }
 
   .section-title {
@@ -145,16 +149,6 @@
   }
 }
 
-/* Product card hover effect */
-.product-card {
-  transition: transform 0.2s ease-in-out;
-}
-
-@media (hover: hover) {
-  .product-card:hover {
-    transform: translateY(-4px);
-  }
-}
 
 /* Respect the visitor's motion preference and save battery on old phones. */
 @media (prefers-reduced-motion: reduce) {
@@ -165,10 +159,6 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
-  }
-
-  .product-card:hover {
-    transform: none;
   }
 
   .skeleton-block {

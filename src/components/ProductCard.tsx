@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useStore } from "@/hooks/use-store";
-import { Button } from "@/components/ui/button";
 import { InventoryBadge } from "@/components/InventoryBadge";
 import { StoreImage } from "@/components/StoreImage";
 import { getInventoryStatus, type InventoryType } from "@/lib/inventory";
@@ -23,12 +22,16 @@ interface ProductCardProps {
   slug?: string;
 }
 
+/**
+ * Compact card: image, name, origin, price and availability. The general
+ * "availability is confirmed by the store" notice is shown once above the
+ * catalog, not repeated on every card.
+ */
 const ProductCard = ({
   id,
   name,
   price,
   image,
-  description,
   inventoryType,
   stockQuantity,
   productionTime,
@@ -40,86 +43,71 @@ const ProductCard = ({
   const store = useStore();
   const status = getInventoryStatus({ inventoryType, stockQuantity, productionTime });
 
-  const existingItem = cart.find((item) => item.id === id);
-  const inCart = !!existingItem;
-  const inCartQty = existingItem?.quantity ?? 0;
-
-  const reachedLimit =
-    status.maxQuantity !== undefined && inCartQty >= status.maxQuantity;
+  const inCartQty = cart.find((item) => item.id === id)?.quantity ?? 0;
+  const inCart = inCartQty > 0;
+  const reachedLimit = status.maxQuantity !== undefined && inCartQty >= status.maxQuantity;
   const disabled = status.isSoldOut || reachedLimit;
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleAddToCart = () => {
     if (disabled) return;
-
-    addItem({
-      id,
-      name,
-      price,
-      image,
-      quantity: 1,
-      maxQuantity: status.maxQuantity,
-    });
+    addItem({ id, name, price, image, quantity: 1, maxQuantity: status.maxQuantity });
   };
 
+  const label = status.isSoldOut
+    ? store.t("sold_out_label")
+    : reachedLimit
+      ? inCart
+        ? store.t("already_in_cart_label")
+        : store.t("unavailable_label")
+      : store.text("add_to_cart_label", "add_to_cart_label");
+
+  const origin = [peopleOrCommunity, originLocation].filter(Boolean).join(" · ");
+
   return (
-    <div
-      className={`group product-card bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ${
-        status.type === "unique" && !status.isSoldOut ? "border-2 border-amber-400" : ""
-      }`}
-    >
-      <Link to={productPath({ id, slug, name })} className="block">
-        <div className="aspect-square overflow-hidden relative">
+    <article className="flex flex-col overflow-hidden rounded-lg border border-sand-200 bg-white">
+      <Link to={productPath({ id, slug, name })} className="group block rounded-none">
+        <div className="relative aspect-square overflow-hidden bg-sand-100">
           <StoreImage
             src={image}
             alt={name}
-            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+            className={`h-full w-full object-cover ${status.isSoldOut ? "opacity-60" : ""}`}
           />
-          <InventoryBadge status={status} className="absolute top-2 right-2" />
+          <InventoryBadge status={status} className="absolute left-2 top-2" />
         </div>
-
-        <div className="p-4">
-          <h3 className="text-lg font-semibold text-forest-900 mb-1">{name}</h3>
-          {(peopleOrCommunity || originLocation) && (
-            <p className="text-xs text-forest-600 mb-2">
-              {peopleOrCommunity}
-              {peopleOrCommunity && originLocation ? " · " : ""}
-              {originLocation}
-            </p>
-          )}
-          <p className="text-sm text-forest-600 mb-2 line-clamp-2">{description}</p>
-
-          <div className="flex justify-between items-center gap-2">
-            <p className="text-terra-600 font-semibold">{store.formatPrice(price)}</p>
-            <p className="text-xs text-forest-600 text-right">{status.message}</p>
-          </div>
+        <div className="space-y-1 p-3">
+          <h3 className="line-clamp-2 font-sans text-sm font-semibold leading-snug text-forest-900 group-hover:underline sm:text-base">
+            {name}
+          </h3>
+          {origin && <p className="line-clamp-1 text-xs text-forest-600">{origin}</p>}
+          <p className="pt-1 text-base font-bold text-terra-700">{store.formatPrice(price)}</p>
         </div>
       </Link>
 
-      <div className="px-4 pb-4">
-        <Button
-          variant={disabled ? "outline" : "default"}
-          className={`w-full ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
-          disabled={disabled}
+      <div className="mt-auto px-3 pb-3">
+        <button
+          type="button"
           onClick={handleAddToCart}
+          disabled={disabled}
+          className={`inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-md px-2 text-sm font-semibold transition-colors ${
+            disabled
+              ? "cursor-not-allowed border border-sand-200 bg-sand-50 text-forest-600"
+              : "bg-forest-800 text-white hover:bg-forest-900"
+          }`}
         >
-          <ShoppingCart className="mr-2 h-4 w-4" />
+          {inCart && !status.isSoldOut ? (
+            <Check className="h-4 w-4 shrink-0" aria-hidden="true" />
+          ) : (
+            !disabled && <Plus className="h-4 w-4 shrink-0" aria-hidden="true" />
+          )}
           <span className="sr-only">{name}: </span>
-          {status.isSoldOut
-            ? store.t("sold_out_label")
-            : reachedLimit
-              ? inCart
-                ? store.t("already_in_cart_label")
-                : store.t("unavailable_label")
-              : store.text("add_to_cart_label", "add_to_cart_label")}
-        </Button>
-        <p className="mt-2 text-[11px] text-forest-600">
-          {store.text("inventory_notice", "availability_disclaimer")}
-        </p>
+          <span className="leading-tight">{label}</span>
+          {inCart && !reachedLimit && (
+            <span className="text-xs font-normal opacity-90">({inCartQty})</span>
+          )}
+        </button>
       </div>
-    </div>
+    </article>
   );
 };
 

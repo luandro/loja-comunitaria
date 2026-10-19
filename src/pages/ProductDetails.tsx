@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { MinusCircle, PlusCircle, AlertCircle } from "lucide-react";
+import { Minus, Plus, AlertCircle, ChevronDown, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useProducts } from "@/hooks/use-products";
 import { useCart } from "@/hooks/use-cart";
@@ -12,11 +12,29 @@ import { StoreImage } from "@/components/StoreImage";
 import { getInventoryStatus } from "@/lib/inventory";
 import { useStore } from "@/hooks/use-store";
 import { MetaRow } from "@/components/ProductMeta";
+import type { ReactNode } from "react";
 import { useCommunities } from "@/hooks/use-communities";
 import { slugify } from "@/lib/communities";
 import { findProductByParam, productSlug } from "@/lib/product-url";
 import { Seo } from "@/components/Seo";
 import { absoluteUrl, clampDescription, pageTitle } from "@/lib/seo";
+
+/** Native <details> section; hidden entirely when it has no filled rows. */
+const DetailsSection = ({ title, open, children }: { title: string; open?: boolean; children: ReactNode[] }) => {
+  const hasContent = children.some(
+    (c) => c && typeof c === "object" && "props" in c && (c.props as { value?: string }).value?.trim(),
+  );
+  if (!hasContent) return null;
+  return (
+    <details className="group px-4" open={open}>
+      <summary className="flex min-h-[48px] cursor-pointer list-none items-center justify-between font-medium text-forest-900 [&::-webkit-details-marker]:hidden">
+        {title}
+        <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" aria-hidden="true" />
+      </summary>
+      <dl className="pb-3">{children}</dl>
+    </details>
+  );
+};
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -138,8 +156,8 @@ const ProductDetails = () => {
 
     if (status?.maxQuantity !== undefined && inCartQty + quantityToAdd > status.maxQuantity) {
       toast({
-        title: "Quantidade indisponível",
-        description: `A loja reportou apenas ${Math.max(0, status.maxQuantity - inCartQty)} unidade(s).`,
+        title: store.t("quantity_unavailable_title"),
+        description: `${Math.max(0, status.maxQuantity - inCartQty)} / ${status.maxQuantity}`,
         variant: "destructive"
       });
       return;
@@ -162,10 +180,15 @@ const ProductDetails = () => {
 
   if (loading) {
     return (
-      <div className="bg-white py-16 animate-fadeIn">
-        <div className="container mx-auto">
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forest-700"></div>
+      <div className="container py-4 md:py-10" role="status" aria-busy="true">
+        <p className="sr-only">{store.t("catalog_loading")}</p>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10">
+          <div className="aspect-square rounded-lg skeleton-block" />
+          <div className="space-y-3">
+            <div className="h-8 w-3/4 rounded skeleton-block" />
+            <div className="h-4 w-1/2 rounded skeleton-block" />
+            <div className="h-7 w-1/3 rounded skeleton-block" />
+            <div className="h-12 w-full rounded-md skeleton-block" />
           </div>
         </div>
       </div>
@@ -177,14 +200,11 @@ const ProductDetails = () => {
       <div className="container mx-auto py-16 text-center">
         <Seo title={pageTitle([store.t("product_not_found"), store.storeName])} noindex />
         <h1 className="text-2xl text-forest-900 mb-4">
-          {error || "Produto não encontrado"}
+          {error || store.t("product_not_found")}
         </h1>
-        <button
-          onClick={() => navigate("/produtos")}
-          className="btn btn-secondary"
-        >
-          Voltar para Produtos
-        </button>
+        <Link to="/produtos" className="btn btn-secondary">
+          {store.t("back_to_products")}
+        </Link>
       </div>
     );
   }
@@ -198,9 +218,16 @@ const ProductDetails = () => {
       path={seoPath}
       jsonLd={productJsonLd}
     />
-    <div className="bg-white py-16 animate-fadeIn">
-      <div className="container mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+    <div className="bg-white pb-8 pt-3 md:py-10">
+      <div className="container">
+        <Link
+          to="/produtos"
+          className="mb-3 inline-flex min-h-[44px] items-center gap-1 text-sm text-forest-700 hover:text-terra-700"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          {store.t("back_to_products")}
+        </Link>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10">
           <div>
             <div className="aspect-square bg-sand-100 rounded-lg overflow-hidden relative">
               <StoreImage
@@ -240,106 +267,122 @@ const ProductDetails = () => {
             )}
           </div>
 
-          <div className="space-y-6">
-            <h1 className="text-3xl font-marcellus text-forest-900">
-              {product.name}
-            </h1>
-            {(product.peopleOrCommunity || product.originLocation) && (
-              <p className="text-sm text-forest-600 -mt-4">
-                {hasCommunityPage && product.peopleOrCommunity ? (
-                  <Link to={`/comunidade/${communitySlug}`} className="text-terra-600 underline">
-                    {product.peopleOrCommunity}
-                  </Link>
-                ) : (
-                  product.peopleOrCommunity
-                )}
-                {product.peopleOrCommunity && product.originLocation ? " · " : ""}
-                {product.originLocation}
-              </p>
-            )}
-            <p className="text-2xl text-terra-600 font-semibold">
-              {store.formatPrice(product.price)}
-            </p>
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <h1 className="text-2xl md:text-3xl font-marcellus text-forest-900">{product.name}</h1>
+              {(product.peopleOrCommunity || product.originLocation) && (
+                <p className="text-sm text-forest-700">
+                  {hasCommunityPage && product.peopleOrCommunity ? (
+                    <Link to={`/comunidade/${communitySlug}`} className="text-terra-700 underline">
+                      {product.peopleOrCommunity}
+                    </Link>
+                  ) : (
+                    product.peopleOrCommunity
+                  )}
+                  {product.peopleOrCommunity && product.originLocation ? " · " : ""}
+                  {product.originLocation}
+                </p>
+              )}
+            </div>
+
+            <p className="text-2xl font-bold text-terra-700">{store.formatPrice(product.price)}</p>
 
             {status && (
-              <div className="space-y-1">
-                <p className="text-sm text-forest-700">{status.message}</p>
-                <p className="text-sm text-forest-600">{store.text("inventory_notice", "availability_disclaimer")}</p>
-              </div>
+              <p className="text-sm text-forest-800">
+                <span className="font-medium">{status.message}</span>{" "}
+                <span className="text-forest-600">
+                  {store.text("inventory_notice", "availability_disclaimer")}
+                </span>
+              </p>
             )}
-
-            <p className="text-forest-700 whitespace-pre-line">
-              {product.longDescription || product.description}
-            </p>
-
-            <dl className="rounded-lg border border-sand-200 bg-sand-50 px-4 py-2">
-              <MetaRow label={store.t("label_community")} value={product.peopleOrCommunity} />
-              <MetaRow label={store.t("label_maker")} value={product.makerName} />
-              <MetaRow label={store.t("label_origin")} value={product.originLocation} />
-              <MetaRow label={store.t("label_materials")} value={product.materials} />
-              <MetaRow label={store.t("label_technique")} value={product.technique} />
-              <MetaRow label={store.t("label_dimensions")} value={product.dimensions} />
-              <MetaRow label={store.t("label_category")} value={product.category} />
-              <MetaRow
-                label={store.t("label_production_time")}
-                value={product.productionTime}
-              />
-              <MetaRow label={store.t("label_care")} value={product.careInstructions} />
-              <MetaRow label={store.t("label_shipping")} value={product.shippingNotes} />
-              <MetaRow label={store.t("label_revenue")} value={product.revenueInformation} />
-            </dl>
 
             {isOutOfStock && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   {isSoldOut
-                    ? 'Este produto está indisponível no momento.'
+                    ? store.t("product_unavailable_alert")
                     : isUnique
-                      ? 'Esta peça única já está no seu carrinho.'
-                      : 'Você já adicionou todas as unidades reportadas.'}
+                      ? store.t("product_unique_in_cart_alert")
+                      : store.t("product_all_units_in_cart_alert")}
                 </AlertDescription>
               </Alert>
             )}
 
-            {showQuantityPicker && (
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="text-forest-600 hover:text-forest-800 transition-colors disabled:opacity-50"
-                  aria-label="Diminuir quantidade"
-                  disabled={isOutOfStock}
+            <div className="flex items-stretch gap-3">
+              {showQuantityPicker && !isOutOfStock && (
+                <div
+                  className="inline-flex items-center rounded-md border border-sand-300"
+                  role="group"
+                  aria-label={store.t("quantity_label")}
                 >
-                  <MinusCircle className="w-6 h-6" />
-                </button>
-                <span className="text-xl font-semibold text-forest-900">
-                  {quantity}
-                </span>
-                <button
-                  onClick={() => setQuantity(Math.min(availableQuantity, quantity + 1))}
-                  className="text-forest-600 hover:text-forest-800 transition-colors disabled:opacity-50"
-                  aria-label="Aumentar quantidade"
-                  disabled={isOutOfStock || quantity >= availableQuantity}
-                >
-                  <PlusCircle className="w-6 h-6" />
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="inline-flex h-12 w-11 items-center justify-center text-forest-800 disabled:opacity-40"
+                    aria-label={store.t("quantity_decrease")}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <span className="w-8 text-center text-lg font-semibold text-forest-900" aria-live="polite">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(Math.min(availableQuantity, quantity + 1))}
+                    className="inline-flex h-12 w-11 items-center justify-center text-forest-800 disabled:opacity-40"
+                    aria-label={store.t("quantity_increase")}
+                    disabled={quantity >= availableQuantity}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+              <Button
+                onClick={handleAddToCart}
+                className="h-12 flex-1 bg-terra-600 text-base font-semibold text-white hover:bg-terra-700"
+                disabled={isOutOfStock}
+                variant={isOutOfStock ? "outline" : "default"}
+              >
+                {isOutOfStock
+                  ? isUnique && existingCartItem
+                    ? store.t("already_in_cart_label")
+                    : store.t("sold_out_label")
+                  : store.text("add_to_cart_label", "add_to_cart_label")}
+              </Button>
+            </div>
+            {existingCartItem && (
+              <Link to="/carrinho" className="inline-flex min-h-[44px] items-center text-sm font-medium text-terra-700 underline">
+                {store.t("view_cart")} ({existingCartItem.quantity})
+              </Link>
             )}
 
-            <Button
-              onClick={handleAddToCart}
-              className="w-full"
-              disabled={isOutOfStock}
-              variant={isOutOfStock ? "outline" : "default"}
-            >
-              {isOutOfStock
-                ? (isUnique && existingCartItem ? store.t('already_in_cart_label') : store.t('sold_out_label'))
-                : store.text('add_to_cart_label', 'add_to_cart_label')}
-            </Button>
-
-            {status?.type === "made_to_order" && (
-              <p className="text-sm text-forest-700 italic">{status.message}</p>
+            {(product.longDescription || product.description) && (
+              <p className="whitespace-pre-line text-forest-800">
+                {product.longDescription || product.description}
+              </p>
             )}
+
+            <div className="divide-y divide-sand-200 rounded-lg border border-sand-200">
+              <DetailsSection title={store.t("details_piece")} open>
+                <MetaRow label={store.t("label_materials")} value={product.materials} />
+                <MetaRow label={store.t("label_technique")} value={product.technique} />
+                <MetaRow label={store.t("label_dimensions")} value={product.dimensions} />
+                <MetaRow label={store.t("label_category")} value={product.category} />
+              </DetailsSection>
+              <DetailsSection title={store.t("details_origin")}>
+                <MetaRow label={store.t("label_community")} value={product.peopleOrCommunity} />
+                <MetaRow label={store.t("label_maker")} value={product.makerName} />
+                <MetaRow label={store.t("label_origin")} value={product.originLocation} />
+                <MetaRow label={store.t("label_revenue")} value={product.revenueInformation} />
+              </DetailsSection>
+              <DetailsSection title={store.t("details_care")}>
+                <MetaRow label={store.t("label_production_time")} value={product.productionTime} />
+                <MetaRow label={store.t("label_care")} value={product.careInstructions} />
+                <MetaRow label={store.t("label_shipping")} value={product.shippingNotes} />
+              </DetailsSection>
+            </div>
           </div>
         </div>
       </div>
