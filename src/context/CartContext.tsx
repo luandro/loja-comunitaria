@@ -8,7 +8,9 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 import { generateOrderId } from '@/lib/whatsapp';
 import { useSiteContent } from '@/context/SiteContentContext';
 import { translate, type TranslationKey } from '@/lib/i18n';
@@ -108,9 +110,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         pending.current = { key: 'cart_item_removed', name: item?.name };
         return prev.filter((it) => it.id !== id);
       });
-      toast({ description: 'Item removido do carrinho' });
+      toast({ description: translate('cart_removed_toast', language) });
     },
-    [toast],
+    [toast, language],
   );
 
   const clearCart = useCallback(() => {
@@ -136,9 +138,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         if (qty < 1) return prev;
         return [...prev, { ...item, quantity: qty }];
       });
-      toast({ description: 'Item adicionado ao carrinho' });
+      toast({
+        description: translate('cart_added_toast', language).replace('{name}', item.name),
+        action: (
+          <ToastAction altText={translate('view_cart', language)} asChild>
+            <Link to="/carrinho">{translate('view_cart', language)}</Link>
+          </ToastAction>
+        ),
+      });
     },
-    [toast],
+    [toast, language],
   );
 
   const createOrder = useCallback(() => {
