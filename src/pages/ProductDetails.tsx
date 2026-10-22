@@ -229,7 +229,7 @@ const ProductDetails = () => {
         </Link>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10">
           <div>
-            <div className="aspect-square bg-sand-100 rounded-lg overflow-hidden relative">
+            <div className="aspect-[4/3] sm:aspect-square bg-sand-100 rounded-lg overflow-hidden relative">
               <StoreImage
                 src={gallery[activeImage] ?? product.image}
                 alt={product.name}
@@ -237,7 +237,7 @@ const ProductDetails = () => {
                 sizes="(min-width: 768px) 50vw, 100vw"
                 className="w-full h-full object-cover"
               />
-              {status && <InventoryBadge status={status} className="absolute top-4 right-4" />}
+              {status && <InventoryBadge status={status} className="absolute left-3 top-3" />}
             </div>
             {gallery.length > 1 && (
               <ul
@@ -297,7 +297,7 @@ const ProductDetails = () => {
             )}
 
             {isOutOfStock && (
-              <Alert variant="destructive">
+              <Alert variant={isSoldOut ? "destructive" : "default"}>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   {isSoldOut
@@ -341,12 +341,12 @@ const ProductDetails = () => {
               )}
               <Button
                 onClick={handleAddToCart}
-                className="h-12 flex-1 bg-terra-600 text-base font-semibold text-white hover:bg-terra-700"
+                className={`h-12 flex-1 text-base font-semibold ${isOutOfStock ? "border-sand-300 bg-sand-50 text-forest-700 disabled:opacity-100" : "bg-terra-600 text-white hover:bg-terra-700"}`}
                 disabled={isOutOfStock}
                 variant={isOutOfStock ? "outline" : "default"}
               >
                 {isOutOfStock
-                  ? isUnique && existingCartItem
+                  ? !isSoldOut && existingCartItem
                     ? store.t("already_in_cart_label")
                     : store.t("sold_out_label")
                   : store.text("add_to_cart_label", "add_to_cart_label")}
