@@ -237,7 +237,7 @@ const ProductDetails = () => {
                 sizes="(min-width: 768px) 50vw, 100vw"
                 className="w-full h-full object-cover"
               />
-              {status && <InventoryBadge status={status} className="absolute top-4 right-4" />}
+              {status && <InventoryBadge status={status} className="absolute left-3 top-3" />}
             </div>
             {gallery.length > 1 && (
               <ul
