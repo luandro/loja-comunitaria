@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { Trash2, MinusCircle, PlusCircle, AlertCircle } from "lucide-react";
+import { Trash2, Minus, Plus, AlertCircle } from "lucide-react";
 import { CartItem as CartItemType } from "@/hooks/use-cart";
 import { useProducts } from "@/hooks/use-products";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -47,9 +47,7 @@ export const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) =>
 
   return (
     <div
-      className={`bg-white p-4 rounded-lg shadow-sm flex flex-col ${
-        status?.type === "unique" && !isSoldOut ? "border-l-4 border-amber-400" : ""
-      }`}
+      className="flex flex-col rounded-lg border border-sand-200 bg-white p-3 sm:p-4"
     >
       {isSoldOut && (
         <Alert variant="destructive" className="mb-3">
@@ -67,41 +65,38 @@ export const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) =>
         </Alert>
       )}
 
-      <div className="flex items-center gap-4">
-        <StoreImage src={item.image} alt={item.name} sizes="80px" className="w-20 h-20 object-cover rounded" />
-        <div className="flex-grow">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-lg font-semibold text-forest-900">{item.name}</h3>
-            {status && <InventoryBadge status={status} />}
-          </div>
-          <p className="text-terra-600">{store.formatPrice(item.price)}</p>
-
-          {status && <p className="text-sm text-forest-600">{status.message}</p>}
-          <p className="text-xs text-forest-600">
-            {store.text("inventory_notice", "availability_disclaimer")}
-          </p>
+      <div className="flex gap-3">
+        <StoreImage src={item.image} alt="" sizes="80px" className="h-20 w-20 shrink-0 rounded-md object-cover" />
+        <div className="min-w-0 flex-1 space-y-1">
+          <h3 className="font-sans text-base font-semibold leading-snug text-forest-900">{item.name}</h3>
+          <p className="font-bold text-terra-700">{store.formatPrice(item.price)}</p>
+          {status && <InventoryBadge status={status} />}
         </div>
-        <div className="flex items-center gap-3">
+      </div>
+
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <div className="inline-flex items-center rounded-md border border-sand-300" role="group" aria-label={store.t("quantity_label")}>
           <button
+            type="button"
             onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-            className="text-forest-600 hover:text-forest-800 transition-colors disabled:opacity-50"
-            aria-label="Diminuir quantidade"
+            className="inline-flex h-11 w-11 items-center justify-center text-forest-800 disabled:opacity-40"
+            aria-label={`${store.t("quantity_decrease")}: ${item.name}`}
             disabled={item.quantity <= 1}
           >
-            <MinusCircle className="w-5 h-5" />
+            <Minus className="h-4 w-4" />
           </button>
-          <span className="text-forest-900 font-medium w-8 text-center">{item.quantity}</span>
-
+          <span className="w-8 text-center font-semibold text-forest-900">{item.quantity}</span>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
+                  type="button"
                   onClick={() => canIncrease && onUpdateQuantity(item.id, item.quantity + 1)}
-                  className={`text-forest-600 hover:text-forest-800 transition-colors ${!canIncrease ? "opacity-50 cursor-not-allowed" : ""}`}
-                  aria-label="Aumentar quantidade"
+                  className="inline-flex h-11 w-11 items-center justify-center text-forest-800 disabled:opacity-40"
+                  aria-label={`${store.t("quantity_increase")}: ${item.name}`}
                   disabled={!canIncrease}
                 >
-                  <PlusCircle className="w-5 h-5" />
+                  <Plus className="h-4 w-4" />
                 </button>
               </TooltipTrigger>
               {!canIncrease && maxQuantity !== undefined && (
@@ -115,15 +110,18 @@ export const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) =>
               )}
             </Tooltip>
           </TooltipProvider>
-
-          <button
-            onClick={() => onRemove(item.id)}
-            className="text-red-500 hover:text-red-600 transition-colors ml-4"
-            aria-label="Remover item"
-          >
-            <Trash2 className="w-5 h-5" />
-          </button>
         </div>
+        {status && !canIncrease && (
+          <p className="flex-1 text-right text-xs text-forest-600">{status.message}</p>
+        )}
+        <button
+          type="button"
+          onClick={() => onRemove(item.id)}
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-red-700 hover:bg-red-50"
+          aria-label={`Remover item: ${item.name}`}
+        >
+          <Trash2 className="h-5 w-5" />
+        </button>
       </div>
     </div>
   );

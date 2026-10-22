@@ -297,7 +297,7 @@ const ProductDetails = () => {
             )}
 
             {isOutOfStock && (
-              <Alert variant="destructive">
+              <Alert variant={isSoldOut ? "destructive" : "default"}>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   {isSoldOut
@@ -341,12 +341,12 @@ const ProductDetails = () => {
               )}
               <Button
                 onClick={handleAddToCart}
-                className="h-12 flex-1 bg-terra-600 text-base font-semibold text-white hover:bg-terra-700"
+                className={`h-12 flex-1 text-base font-semibold ${isOutOfStock ? "border-sand-300 bg-sand-50 text-forest-700 disabled:opacity-100" : "bg-terra-600 text-white hover:bg-terra-700"}`}
                 disabled={isOutOfStock}
                 variant={isOutOfStock ? "outline" : "default"}
               >
                 {isOutOfStock
-                  ? isUnique && existingCartItem
+                  ? !isSoldOut && existingCartItem
                     ? store.t("already_in_cart_label")
                     : store.t("sold_out_label")
                   : store.text("add_to_cart_label", "add_to_cart_label")}

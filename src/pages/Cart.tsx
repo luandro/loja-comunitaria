@@ -60,19 +60,19 @@ const Cart = () => {
     );
 
   return (
-    <div className="bg-sand-50 py-16 animate-fadeIn">
+    <div className="bg-sand-50 py-6 md:py-10">
       {cartSeo}
       <div className="container mx-auto">
-        <h1 className="text-3xl font-marcellus text-forest-900 mb-2">{store.t('cart_title')}</h1>
+        <h1 className="text-2xl md:text-3xl font-marcellus text-forest-900 mb-2">{store.t('cart_title')}</h1>
         <p className="text-forest-700">{store.text('order_notice', 'order_notice_fallback')}</p>
-        <p className="text-forest-700 mb-8 font-medium">
+        <p className="text-forest-700 mb-5 font-medium">
           {store.t('availability_disclaimer')}
         </p>
 
 
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
+          <div className="lg:col-span-2 space-y-3">
             {cart.map((item) => (
               <CartItem
                 key={item.id}
