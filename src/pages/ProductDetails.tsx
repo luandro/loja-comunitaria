@@ -229,7 +229,7 @@ const ProductDetails = () => {
         </Link>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10">
           <div>
-            <div className="aspect-square bg-sand-100 rounded-lg overflow-hidden relative">
+            <div className="aspect-[4/3] sm:aspect-square bg-sand-100 rounded-lg overflow-hidden relative">
               <StoreImage
                 src={gallery[activeImage] ?? product.image}
                 alt={product.name}
