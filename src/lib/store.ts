@@ -57,12 +57,19 @@ export interface Store {
   contact: StoreContact;
   checkoutMode: 'whatsapp_first' | 'pix_immediate';
   pix: StorePix;
+  /** Automatic Pix in checkout. ON unless pix_automatico === "FALSE". */
+  pixAutomatic: boolean;
+  /** true = freight is always arranged separately (Pix may charge products only). */
+  freightSeparate: boolean;
   pickupAvailable: boolean;
   diagnostics: StoreDiagnostic[];
 }
 
 const truthy = (value: string) =>
   ['true', '1', 'sim', 'yes', 'y'].includes(value.trim().toLowerCase());
+
+const falsy = (value: string) =>
+  ['false', '0', 'nao', 'não', 'no', 'n'].includes(value.trim().toLowerCase());
 
 function buildWhatsAppLink(number: string, message: string) {
   if (!number) return '';
@@ -124,6 +131,10 @@ export function createStore(content: SiteContent): Store {
     confirmationNotice: optional('pix_confirmation_notice'),
   };
 
+  // Automatic Pix is ON by default; only an explicit "FALSE" turns it off.
+  const pixAutomatic = !falsy(optional('pix_automatico'));
+  const freightSeparate = truthy(optional('freight_separate'));
+
   const diagnostics: StoreDiagnostic[] = [];
   if (!import.meta.env.VITE_GOOGLE_SPREADSHEET_ID) {
     diagnostics.push({ key: 'spreadsheet', message: t('diag_missing_spreadsheet') });
@@ -152,6 +163,8 @@ export function createStore(content: SiteContent): Store {
     contact,
     checkoutMode,
     pix,
+    pixAutomatic,
+    freightSeparate,
     pickupAvailable: truthy(optional('pickup_available') || 'true'),
     diagnostics,
   };
