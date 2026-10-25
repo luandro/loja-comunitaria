@@ -30,4 +30,4 @@ export function getWhatsAppCustomLink(message: string, numberOverride?: string):
 /**
  * Reference code for an order request (not a confirmed order).
  */
-export { generateReferenceCode as generateOrderId } from './order-request';
+export { generateReferenceCode as generateOrderId } from './checkout';
