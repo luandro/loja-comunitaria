@@ -91,6 +91,10 @@ export interface SiteContent {
   pix_instruction: string;
   pix_confirmation_notice: string;
   pix_qr_image_url: string;
+  /** Automatic Pix in checkout. Missing/empty = ON; "FALSE" disables. */
+  pix_automatico: string;
+  /** "true" = freight is always arranged separately, so Pix may charge products only. */
+  freight_separate: string;
 
   // CEP lookup
   cep_lookup_enabled: string;
@@ -180,6 +184,8 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   pix_instruction: '',
   pix_confirmation_notice: '',
   pix_qr_image_url: '',
+  pix_automatico: '',
+  freight_separate: '',
 
   cep_lookup_enabled: 'true',
   cep_lookup_privacy_notice:
@@ -275,6 +281,9 @@ const KEY_ALIASES: Record<string, string> = {
   instrucao_pix: 'pix_instruction',
   aviso_confirmacao_pix: 'pix_confirmation_notice',
   url_qr_pix: 'pix_qr_image_url',
+  pix_automatico: 'pix_automatico',
+  frete_separado: 'freight_separate',
+  frete_combinado_separadamente: 'freight_separate',
   // CEP lookup
   consulta_cep_ativa: 'cep_lookup_enabled',
   aviso_privacidade_cep: 'cep_lookup_privacy_notice',
