@@ -163,7 +163,21 @@ export function buildStoreCheckReport(input: BuildReportInput): StoreCheckReport
     hint: 'Preencha "numero_whatsapp" na aba Conteudo_Site.',
   });
 
-  if (store.optional('pix_enabled') || store.checkoutMode === 'pix_immediate') {
+  items.push({
+    key: 'pix_automatico',
+    label: 'Pix automático no checkout',
+    value: store.pixAutomatic
+      ? store.optional('pix_automatico')
+        ? 'Ativado (pix_automatico)'
+        : 'Ativado (padrão)'
+      : 'Desativado (pix_automatico = FALSE)',
+    status: 'info',
+    hint: store.pixAutomatic
+      ? 'Para desligar, defina pix_automatico = FALSE na aba Conteudo_Site.'
+      : undefined,
+  });
+
+  if (store.pixAutomatic || store.optional('pix_enabled')) {
     const missing = [
       !store.pix.key && 'chave_pix',
       !store.pix.recipientName && 'nome_recebedor_pix',
@@ -172,9 +186,13 @@ export function buildStoreCheckReport(input: BuildReportInput): StoreCheckReport
     items.push({
       key: 'pix',
       label: 'Configuração do Pix',
-      value: store.pix.available ? 'Configurada' : `Incompleta (${missing.join(', ') || 'pix_enabled'})`,
+      value: store.pix.available
+        ? store.freightSeparate
+          ? 'Configurada (frete combinado separadamente)'
+          : 'Configurada (Pix automático só na retirada — frete de entrega é combinado pelo WhatsApp)'
+        : `Incompleta (${missing.join(', ') || 'pix_enabled'})`,
       status: store.pix.available ? 'ok' : 'error',
-      hint: 'Preencha chave_pix, nome_recebedor_pix e cidade_recebedor_pix na aba Conteudo_Site. Sem isso o Pix fica oculto.',
+      hint: 'Preencha pix_enabled, chave_pix, nome_recebedor_pix e cidade_recebedor_pix na aba Conteudo_Site. Sem isso o checkout envia o pedido direto pelo WhatsApp. Para cobrar Pix também na entrega, defina frete_separado = true.',
     });
   }
 
