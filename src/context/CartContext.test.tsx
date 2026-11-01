@@ -59,4 +59,32 @@ describe('limites de quantité du panier', () => {
     });
     expect(ref2).toBe(ref);
   });
+
+  it('a referência sobrevive a refresh e troca de app (round trip do banco)', () => {
+    const first = renderHook(() => useCart(), { wrapper });
+    let ref = '';
+    act(() => {
+      ref = first.result.current.createOrder();
+    });
+    first.unmount();
+
+    // Remount = page refresh / PWA resume / return from the banking app.
+    const second = renderHook(() => useCart(), { wrapper });
+    expect(second.result.current.orderId).toBe(ref);
+    let ref2 = '';
+    act(() => {
+      ref2 = second.result.current.createOrder();
+    });
+    expect(ref2).toBe(ref);
+  });
+
+  it('o carrinho também é restaurado após refresh', () => {
+    const first = renderHook(() => useCart(), { wrapper });
+    act(() => first.result.current.addItem(item({ maxQuantity: 3 })));
+    first.unmount();
+
+    const second = renderHook(() => useCart(), { wrapper });
+    expect(second.result.current.cart).toHaveLength(1);
+    expect(second.result.current.cart[0].name).toBe('Peça única');
+  });
 });
