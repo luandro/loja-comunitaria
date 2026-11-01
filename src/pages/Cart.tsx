@@ -135,7 +135,7 @@ const Cart = () => {
   return (
     <div className="bg-sand-50 py-6 md:py-10">
       {cartSeo}
-      <div className="container mx-auto max-w-xl">
+      <div className="container mx-auto max-w-xl pb-20 md:pb-0">
         <h1 className="text-2xl md:text-3xl font-marcellus text-forest-900 mb-4">
           {store.t('your_order')}
         </h1>
