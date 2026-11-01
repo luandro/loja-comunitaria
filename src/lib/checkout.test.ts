@@ -182,6 +182,8 @@ describe('delivery lines (rural/Indigenous/riverside friendly)', () => {
 
 describe('WhatsApp message', () => {
   const cart = [item({}), item({ id: 2, name: 'Colar', price: 60, quantity: 2 })];
+  // Intl.NumberFormat uses a non-breaking space in "R$ 240,00".
+  const flat = (msg: string) => msg.replace(/\u00A0/g, ' ');
 
   it('paid order declares payment and ends with the receipt prompt', () => {
     const msg = buildCheckoutMessage({
@@ -192,12 +194,13 @@ describe('WhatsApp message', () => {
       storeName: 'Loja Comunitária',
       paid: true,
     });
-    expect(msg).toContain('🛍️ Pedido LC-A7F42');
-    expect(msg).toContain('• 1× Cesto Krahô — R$ 120,00');
-    expect(msg).toContain('• 2× Colar — R$ 60,00 cada');
-    expect(msg).toContain('Total: R$ 240,00');
-    expect(msg).toContain('Já fiz o pagamento por Pix.');
-    expect(msg.trim().endsWith('E aqui está o comprovante 👇')).toBe(true);
+    const m = flat(msg);
+    expect(m).toContain('🛍️ Pedido LC-A7F42');
+    expect(m).toContain('• 1× Cesto Krahô — R$ 120,00');
+    expect(m).toContain('• 2× Colar — R$ 60,00 cada');
+    expect(m).toContain('Total: R$ 240,00');
+    expect(m).toContain('Já fiz o pagamento por Pix.');
+    expect(m.trim().endsWith('E aqui está o comprovante 👇')).toBe(true);
   });
 
   it('labels products-only amount when freight is separate', () => {
@@ -209,9 +212,10 @@ describe('WhatsApp message', () => {
       paid: true,
       freightNote: true,
     });
-    expect(msg).toContain('Produtos: R$ 240,00');
-    expect(msg).toContain('Frete será combinado separadamente.');
-    expect(msg).not.toContain('Total: R$ 240,00');
+    const m = flat(msg);
+    expect(m).toContain('Produtos: R$ 240,00');
+    expect(m).toContain('Frete será combinado separadamente.');
+    expect(m).not.toContain('Total: R$ 240,00');
   });
 
   it('unpaid order (pix_automatico = FALSE) never claims payment', () => {
@@ -223,10 +227,11 @@ describe('WhatsApp message', () => {
       storeName: 'Loja Comunitária',
       paid: false,
     });
-    expect(msg).toContain('Total dos produtos: R$ 240,00');
-    expect(msg).toContain('Gostaria de confirmar o pedido e receber as informações para pagamento.');
-    expect(msg).not.toContain('Já fiz o pagamento');
-    expect(msg).not.toContain('comprovante');
+    const m = flat(msg);
+    expect(m).toContain('Total dos produtos: R$ 240,00');
+    expect(m).toContain('Gostaria de confirmar o pedido e receber as informações para pagamento.');
+    expect(m).not.toContain('Já fiz o pagamento');
+    expect(m).not.toContain('comprovante');
   });
 
   it('never leaks technical metadata or long URLs', () => {

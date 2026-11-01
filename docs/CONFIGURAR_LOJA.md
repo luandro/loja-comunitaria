@@ -94,10 +94,9 @@ A aba tem duas colunas: `chave` e `valor` (também aceita `key`/`value`). Uma te
 |---|---|
 | `aviso_pedido` | Aviso no carrinho. |
 | `aviso_estoque` | Aviso sobre disponibilidade. |
-| `modo_checkout` | `whatsapp_first` (padrão) ou `pix_immediate`. |
 | `instrucoes_checkout` | Instruções extras. |
 | `politica_envio` | Como e para onde envia. |
-| `retirada_disponivel` | `sim` ou `nao`. |
+| `retirada_disponivel` | `sim` ou `nao`. Se `nao`, a entrega é escolhida automaticamente. |
 
 ### Contato (só dados públicos da loja)
 | chave | o que é |
@@ -121,7 +120,7 @@ A aba tem duas colunas: `chave` e `valor` (também aceita `key`/`value`). Uma te
 | `local` | `pt-BR` |
 
 ### Pix (opcional) — veja [PIX.md](PIX.md)
-`ativar_pix`, `chave_pix`, `nome_recebedor_pix`, `cidade_recebedor_pix`, `instrucao_pix`, `aviso_confirmacao_pix`, `url_qr_pix`.
+`ativar_pix`, `chave_pix`, `nome_recebedor_pix`, `cidade_recebedor_pix`, `instrucao_pix`, `aviso_confirmacao_pix`, `url_qr_pix`, `pix_automatico` (padrão ligado; `FALSE` desliga), `frete_separado` (`true` = frete sempre combinado à parte).
 
 ### CEP
 | chave | o que é |
