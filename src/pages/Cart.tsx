@@ -167,6 +167,12 @@ const Cart = () => {
         />
 
         {form.delivery === 'entrega' && (
+          <p className="mt-3 rounded-lg bg-white p-3 text-sm text-forest-700 border border-sand-200">
+            {store.t('freight_explainer')}
+          </p>
+        )}
+
+        {form.delivery === 'entrega' && (
           <AddressSection
             data={form}
             onChange={patchForm}

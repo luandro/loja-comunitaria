@@ -124,20 +124,26 @@ export const PixPanel = ({
         <p className="mt-3 whitespace-pre-line text-sm text-forest-700">{store.pix.instruction}</p>
       )}
 
+      <p
+        role="note"
+        className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm font-medium text-amber-900"
+      >
+        {store.t('receipt_hint')}
+      </p>
+
       <a
         href={canSend ? whatsappLink : undefined}
         target="_blank"
         rel="noopener noreferrer"
         aria-disabled={!canSend}
         onClick={onSend}
-        className={`btn mt-5 flex w-full items-center justify-center text-base ${
+        className={`btn mt-3 flex w-full items-center justify-center text-base ${
           canSend ? 'btn-primary' : 'pointer-events-none bg-sand-200 text-forest-600'
         }`}
       >
         <MessageSquare className="mr-2 h-5 w-5" aria-hidden />
         {store.t('paid_send_order')}
       </a>
-      <p className="mt-2 text-center text-sm text-forest-700">{store.t('receipt_hint')}</p>
     </section>
   );
 };

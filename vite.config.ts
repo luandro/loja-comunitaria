@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => ({
         runtimeCaching: [
           {
             // Catalog + site content spreadsheet: fresh when online, cached offline.
-            urlPattern: /^https:\/\/opensheet\.elk\.sh\/.*/i,
+            urlPattern: /^https:\/\/(opensheet\.elk\.sh\/|docs\.google\.com\/spreadsheets\/d\/[^/]+\/gviz\/).*/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "catalog-data",

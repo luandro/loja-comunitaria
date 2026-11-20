@@ -8,3 +8,5 @@
 - [x] Testes: checkout.test.ts (flags, Pix, frete, mensagens, persistência); CartContext (persistência refresh/app switch)
 - [x] Docs: PIX.md, CONFIGURAR_LOJA.md, modelo Conteudo_Site.csv + xlsx regerado
 - [x] Verificar: tsgo, eslint, vitest (86 passam), build OK, review mobile 390px (Playwright)
+- [x] Read spreadsheet directly from Google CSV (OpenSheet only as backup)
+- [x] Checkout microcopy: freight explainer + Pix receipt reminder

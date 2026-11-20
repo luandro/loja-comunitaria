@@ -1,4 +1,5 @@
 import { getEnv } from './env';
+import { fetchSheetRows } from './sheet-fetch';
 
 /**
  * Optional `Comunidades` spreadsheet tab.
@@ -63,9 +64,7 @@ export async function loadCommunities(): Promise<Community[]> {
   if (!spreadsheetId || !tab) return [];
 
   try {
-    const res = await fetch(`https://opensheet.elk.sh/${spreadsheetId}/${tab}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const rows = (await res.json()) as Array<Record<string, unknown>>;
+    const rows = await fetchSheetRows(spreadsheetId, tab);
     return rows.map(rowToCommunity).filter((c): c is Community => c !== null);
   } catch (err) {
     if (import.meta.env.DEV)

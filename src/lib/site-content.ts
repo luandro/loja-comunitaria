@@ -1,4 +1,5 @@
 import { getEnv } from './env';
+import { fetchSheetRows } from './sheet-fetch';
 
 /**
  * All site-wide content keys editable from the Conteudo_Site (or Site_Content) tab
@@ -324,10 +325,7 @@ export async function loadSiteContent(): Promise<SiteContentResult> {
   }
 
   try {
-    const url = `https://opensheet.elk.sh/${spreadsheetId}/${contentTab}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const rows = (await res.json()) as Array<Record<string, string>>;
+    const rows = await fetchSheetRows(spreadsheetId, contentTab);
 
     if (rows.length > 0) {
       const headers = Object.keys(rows[0]).map((h) => h.toLowerCase());

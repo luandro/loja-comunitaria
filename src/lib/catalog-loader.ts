@@ -1,4 +1,5 @@
 import { getEnv } from './env';
+import { fetchSheetRows } from './sheet-fetch';
 import { finalize, loadProductsFromCSV, type Product } from './products';
 import { validateProductRows, type RowIssue } from './catalog-validation';
 
@@ -70,10 +71,7 @@ async function fetchSheetCatalog() {
   const tabName = getEnv('GOOGLE_SPREADSHEET_TAB');
   if (!spreadsheetId || !tabName) throw new Error('Planilha não configurada');
 
-  const res = await fetch(`https://opensheet.elk.sh/${spreadsheetId}/${tabName}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = (await res.json()) as Array<Record<string, unknown>>;
-  if (!Array.isArray(data)) throw new Error('Resposta inesperada da planilha');
+  const data = await fetchSheetRows(spreadsheetId, tabName);
   return validateProductRows(data);
 }
 
